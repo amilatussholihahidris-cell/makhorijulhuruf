@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sahabat Tajwid: Belajar Makharijul Huruf (SD Kelas 4–6)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Fredoka & Nunito untuk antarmuka anak, Amiri & Scheherazade New untuk huruf Arab berharakat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Scheherazade+New:wght@600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fredoka', 'sans-serif'],
+            sans: ['Nunito', 'sans-serif'],
+            arabic: ['Scheherazade New', 'Amiri', 'serif'],
+          },
+          colors: {
+            cream: '#FFFDF7',
+            tealsoft: '#0D9488',
+            skyplay: '#0284C7',
+            sunwarm: '#F59E0B',
+            coralplay: '#F43F5E',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #FFFDF7;
+      background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: #1E293B;
+      overflow-x: hidden;
+    }
+
+    .arabic-text {
+      font-family: 'Scheherazade New', 'Amiri', serif;
+      direction: rtl;
+      line-height: 1.85;
+    }
+
+    /* Animasi denyut hotspot pada peta anatomi */
+    @keyframes pulseRing {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      70% { transform: scale(1.65); opacity: 0; }
+      100% { transform: scale(1.65); opacity: 0; }
+    }
+    .hotspot-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: pulseRing 2s infinite ease-out;
+    }
+
+    /* Animasi simulasi gerakan organ bicara pada modal anatomi */
+    @keyframes organMoveHalq {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-4px) scale(1.08); }
+    }
+    @keyframes organMoveLisan {
+      0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+      50% { transform: translate(6px, -6px) rotate(-4deg); }
+    }
+    @keyframes organMoveSyafatain {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.78); }
+    }
+    .anim-halq { animation: organMoveHalq 1.6s infinite ease-in-out; }
+    .anim-lisan { animation: organMoveLisan 1.5s infinite ease-in-out; transform-origin: left bottom; }
+    .anim-syafatain { animation: organMoveSyafatain 1.4s infinite ease-in-out; transform-origin: center; }
+
+    /* Custom scrollbar halus */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-amber-200 selection:text-slate-900">
+
+  <!-- Toast / Notifikasi Ramah Anak (Pengganti alert) -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
+
+  <!-- HEADER & NAVIGASI UTAMA -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-4 border-teal-500/20 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Brand Logo -->
+        <button onclick="switchTab('beranda')" class="flex items-center gap-3 text-left group focus:outline-none">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+            <span class="arabic-text text-3xl font-bold leading-none pt-1">ق</span>
+          </div>
+          <div>
+            <h1 class="font-display text-xl sm:text-2xl font-bold text-slate-800 tracking-tight leading-tight">
+              Sahabat <span class="text-teal-600">Tajwid</span>
+            </h1>
+            <p class="text-xs sm:text-sm font-semibold text-slate-500">Makharijul Huruf • SD Kelas 4–6</p>
+          </div>
+        </button>
+
+        <!-- Badge Progres Siswa -->
+        <div class="flex items-center gap-2 sm:gap-3 bg-amber-50 border-2 border-amber-200 px-3.5 py-1.5 rounded-2xl">
+          <div class="flex items-center gap-1 text-amber-500 font-display font-bold text-base sm:text-lg">
+            <span>⭐</span>
+            <span id="header-stars">0</span>
+          </div>
+          <span class="text-slate-300">|</span>
+          <div class="text-xs sm:text-sm font-bold text-slate-700">
+            Huruf Dipelajari: <span id="header-learned" class="text-teal-600">0</span>/28
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Navigasi Besar Ramah Anak -->
+      <nav aria-label="Menu Utama" class="mt-3 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button data-tab="beranda" onclick="switchTab('beranda')" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all">
+          <span>🏠</span> Beranda
+        </button>
+        <button data-tab="anatomi" onclick="switchTab('anatomi')" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all">
+          <span>🗣️</span> Peta Anatomi
+        </button>
+        <button data-tab="materi" onclick="switchTab('materi')" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all">
+          <span>📖</span> Huruf & Harakat
+        </button>
+        <button data-tab="video" onclick="switchTab('video')" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all">
+          <span>🎬</span> Video Belajar
+        </button>
+        <button data-tab="kuis" onclick="switchTab('kuis')" class="nav-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all">
+          <span>🏆</span> Kuis & Bintang
+        </button>
+        <button data-tab="guru" onclick="switchTab('guru')" class="nav-btn ml-auto flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700">
+          <span>👩‍🏫</span> Ruang Guru
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- KONTEN UTAMA -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ==================== 1. HALAMAN BERANDA ==================== -->
+    <section id="view-beranda" class="tab-view space-y-8">
+      <!-- Hero Banner -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-emerald-500 to-sky-600 text-white p-6 sm:p-10 shadow-xl">
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-7 space-y-4">
+            <span class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide">
+              ✨ Media Pembelajaran Al-Qur'an Interaktif
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
+              Kenali Tempat Keluarnya Huruf Hijaiyah dengan Mudah!
+            </h2>
+            <p class="text-teal-50 text-base sm:text-lg leading-relaxed max-w-2xl">
+              Assalamu'alaikum teman-teman! Yuk jelajahi peta rongga mulut dan tenggorokan, dengarkan cara pelafalan huruf dengan berbagai harakat, tonton video, dan kumpulkan bintang prestasi!
+            </p>
+            <div class="pt-2 flex flex-wrap gap-3">
+              <button onclick="switchTab('anatomi')" class="px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-display font-bold text-base sm:text-lg shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                <span>🗺️</span> Mulai Jelajah Anatomi
+              </button>
+              <button onclick="switchTab('materi')" class="px-6 py-3.5 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-display font-bold text-base sm:text-lg transition-all flex items-center gap-2">
+                <span>🔊</span> Latihan 28 Huruf
+              </button>
+            </div>
+          </div>
+
+          <!-- Kartu Ringkasan Progres & Lencana -->
+          <div class="lg:col-span-5">
+            <div class="bg-white/95 text-slate-800 rounded-3xl p-6 shadow-lg border-4 border-white/40 space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-display text-xl font-bold text-slate-800">Pencapaian Belajarmu</h3>
+                <span class="text-2xl">🎖️</span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div>
+                <div class="flex justify-between text-sm font-bold mb-1.5">
+                  <span class="text-slate-600">Huruf Hijaiyah Dieksplorasi</span>
+                  <span id="home-progress-text" class="text-teal-600">0 / 28 Huruf</span>
+                </div>
+                <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                  <div id="home-progress-bar" class="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Koleksi Lencana -->
+              <div class="grid grid-cols-3 gap-2.5 pt-1">
+                <div id="badge-explorer" class="p-3 rounded-2xl bg-slate-100 text-center opacity-50 transition-all border-2 border-transparent">
+                  <div class="text-2xl mb-1">🧭</div>
+                  <div class="text-xs font-extrabold text-slate-700">Penjelajah</div>
+                  <div class="text-[11px] text-slate-500">Pelajari 10 huruf</div>
+                </div>
+                <div id="badge-qari" class="p-3 rounded-2xl bg-slate-100 text-center opacity-50 transition-all border-2 border-transparent">
+                  <div class="text-2xl mb-1">🎙️</div>
+                  <div class="text-xs font-extrabold text-slate-700">Qari Cilik</div>
+                  <div class="text-[11px] text-slate-500">Pelajari 28 huruf</div>
+                </div>
+                <div id="badge-champion" class="p-3 rounded-2xl bg-slate-100 text-center opacity-50 transition-all border-2 border-transparent">
+                  <div class="text-2xl mb-1">👑</div>
+                  <div class="text-xs font-extrabold text-slate-700">Juara Tajwid</div>
+                  <div class="text-[11px] text-slate-500">Skor Kuis ≥ 80</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shortcut 3 Kelompok Utama Makharijul Huruf -->
+      <div>
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-5 gap-2">
+          <div>
+            <h3 class="font-display text-2xl sm:text-3xl font-bold text-slate-800">Tiga Kelompok Utama Makhraj</h3>
+            <p class="text-slate-600 font-medium">Pilih salah satu kelompok di bawah ini untuk langsung mempelajari huruf-hurufnya.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Card Al-Halq -->
+          <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-rose-100 hover:border-rose-400 transition-all flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 font-display font-bold text-sm">Kelompok 1 • 6 Huruf</span>
+                <span class="text-3xl group-hover:scale-110 transition-transform">🦒</span>
+              </div>
+              <h4 class="font-display text-2xl font-bold text-slate-800 mb-1">Al-Halq (Tenggorokan)</h4>
+              <p class="text-slate-600 text-sm mb-4">Huruf-huruf yang keluar dari bagian pangkal, tengah, dan ujung tenggorokan.</p>
+              <div class="flex flex-wrap gap-2 justify-end bg-rose-50/70 p-3 rounded-2xl mb-5" dir="rtl">
+                <span class="arabic-text text-3xl font-bold text-rose-700 px-2">ء</span>
+                <span class="arabic-text text-3xl font-bold text-rose-700 px-2">هـ</span>
+                <span class="arabic-text text-3xl font-bold text-rose-700 px-2">ع</span>
+                <span class="arabic-text text-3xl font-bold text-rose-700 px-2">ح</span>
+                <span class="arabic-text text-3xl font-bold text-rose-700 px-2">غ</span>
+                <span class="arabic-text text-3xl font-bold text-rose-700 px-2">خ</span>
+              </div>
+            </div>
+            <button onclick="openCategoryMateri('al-halq')" class="w-full py-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-display font-bold transition-colors">
+              Pelajari Al-Halq →
+            </button>
+          </div>
+
+          <!-- Card Al-Lisan -->
+          <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-sky-100 hover:border-sky-400 transition-all flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3.5 py-1 rounded-full bg-sky-100 text-sky-700 font-display font-bold text-sm">Kelompok 2 • 18 Huruf</span>
+                <span class="text-3xl group-hover:scale-110 transition-transform">👅</span>
+              </div>
+              <h4 class="font-display text-2xl font-bold text-slate-800 mb-1">Al-Lisan (Lidah)</h4>
+              <p class="text-slate-600 text-sm mb-4">Kelompok terbanyak! Keluar dari pangkal, tengah, tepi, dan ujung lidah bersama gigi & langit-langit.</p>
+              <div class="flex flex-wrap gap-1.5 justify-end bg-sky-50/70 p-3 rounded-2xl mb-5" dir="rtl">
+                <span class="arabic-text text-2xl font-bold text-sky-700 px-1.5">ق ك ج ش ي ض ل ن ر ط د ت ص ز س ظ ذ ث</span>
+              </div>
+            </div>
+            <button onclick="openCategoryMateri('al-lisan')" class="w-full py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-display font-bold transition-colors">
+              Pelajari Al-Lisan →
+            </button>
+          </div>
+
+          <!-- Card Asy-Syafatain -->
+          <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-amber-100 hover:border-amber-400 transition-all flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 font-display font-bold text-sm">Kelompok 3 • 4 Huruf</span>
+                <span class="text-3xl group-hover:scale-110 transition-transform">👄</span>
+              </div>
+              <h4 class="font-display text-2xl font-bold text-slate-800 mb-1">Asy-Syafatain (Dua Bibir)</h4>
+              <p class="text-slate-600 text-sm mb-4">Huruf-huruf yang keluar dari pertemuan dua bibir atau bibir bawah dengan ujung gigi seri atas.</p>
+              <div class="flex flex-wrap gap-3 justify-end bg-amber-50/70 p-3 rounded-2xl mb-5" dir="rtl">
+                <span class="arabic-text text-3xl font-bold text-amber-700 px-2">ف</span>
+                <span class="arabic-text text-3xl font-bold text-amber-700 px-2">ب</span>
+                <span class="arabic-text text-3xl font-bold text-amber-700 px-2">م</span>
+                <span class="arabic-text text-3xl font-bold text-amber-700 px-2">و</span>
+              </div>
+            </div>
+            <button onclick="openCategoryMateri('asy-syafatain')" class="w-full py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-display font-bold transition-colors">
+              Pelajari Asy-Syafatain →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tujuan Belajar -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border-2 border-teal-100">
+        <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <span>🎯</span> Tujuan Pembelajaran Hari Ini
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-2xl bg-teal-50/70 border border-teal-100">
+            <div class="font-display font-bold text-teal-700 mb-1">1. Mengenali 3 Kelompok</div>
+            <p class="text-sm text-slate-600">Membedakan huruf Al-Halq, Al-Lisan, dan Asy-Syafatain dengan tepat.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-100">
+            <div class="font-display font-bold text-sky-700 mb-1">2. Melihat Posisi Organ</div>
+            <p class="text-sm text-slate-600">Memahami titik sentuh lidah, gigi, bibir, dan tenggorokan pada gambar anatomi.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-100">
+            <div class="font-display font-bold text-amber-700 mb-1">3. Melafalkan 8 Harakat</div>
+            <p class="text-sm text-slate-600">Berlatih fathah, kasrah, dhammah, tanwin, sukun, dan tasydid dengan fasih.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-rose-50/70 border border-rose-100">
+            <div class="font-display font-bold text-rose-700 mb-1">4. Membedakan Bunyi Mirip</div>
+            <p class="text-sm text-slate-600">Tidak tertukar antara huruf berbunyi mirip seperti س - ش - ص atau ذ - ز - ظ.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. PETA ANATOMI INTERAKTIF ==================== -->
+    <section id="view-anatomi" class="tab-view hidden space-y-6">
+      <div class="bg-white rounded-3xl p-6 shadow-md border-2 border-sky-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="px-3 py-1 rounded-full bg-sky-100 text-sky-700 font-display font-bold text-xs uppercase tracking-wider">Eksplorasi Visual</span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">Peta Anatomi Makharijul Huruf</h2>
+            <p class="text-slate-600 text-sm sm:text-base">Ketuk titik berwarna yang berkedip pada gambar rongga mulut & tenggorokan untuk melihat penjelasan dan bunyi hurufnya!</p>
+          </div>
+          <!-- Legenda Warna -->
+          <div class="flex flex-wrap gap-2 text-xs font-bold">
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200">
+              <span class="w-3 h-3 rounded-full bg-rose-500"></span> Al-Halq (Tenggorokan)
+            </span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 text-sky-700 border border-sky-200">
+              <span class="w-3 h-3 rounded-full bg-sky-500"></span> Al-Lisan (Lidah)
+            </span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200">
+              <span class="w-3 h-3 rounded-full bg-amber-500"></span> Asy-Syafatain (Bibir)
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- Kanvas SVG Anatomi Penampang Kepala & Rongga Mulut -->
+          <div class="lg:col-span-7 bg-gradient-to-b from-sky-50 to-teal-50/60 rounded-3xl p-3 sm:p-5 border-2 border-sky-200/80 shadow-inner">
+            <svg viewBox="0 0 640 520" class="w-full h-auto max-h-[540px] select-none" role="img" aria-label="Ilustrasi Anatomi Rongga Mulut dan Tenggorokan Makharijul Huruf">
+              <defs>
+                <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FDE68A" />
+                  <stop offset="100%" stop-color="#FCD34D" />
+                </linearGradient>
+                <linearGradient id="cavityGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#FECDD3" />
+                  <stop offset="100%" stop-color="#FDA4AF" />
+                </linearGradient>
+                <linearGradient id="tongueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#FB7185" />
+                  <stop offset="100%" stop-color="#F43F5E" />
+                </linearGradient>
+              </defs>
+
+              <!-- Siluet Kepala & Leher (Menghadap Kanan) -->
+              <path d="M 110,490 L 110,330 C 90,260 95,140 165,80 C 235,20 355,25 415,85 C 455,125 462,175 495,212 C 505,223 496,236 475,240 L 465,243 C 476,252 475,264 462,268 L 448,272 L 448,308 L 465,314 C 476,320 474,335 460,342 C 446,350 442,375 425,392 C 402,412 350,410 315,405 L 315,490 Z"
+                    fill="url(#skinGrad)" stroke="#D97706" stroke-width="4" stroke-linejoin="round" />
+
+              <!-- Rongga Hidung (Al-Khaisyum - referensi edukatif) -->
+              <path d="M 275,165 C 335,145 410,165 468,215 L 445,225 C 395,200 330,195 275,205 Z"
+                    fill="#FBCFE8" stroke="#F472B6" stroke-width="2" />
+              <text x="330" y="185" font-size="12" font-weight="bold" fill="#9D174D" font-family="Nunito, sans-serif">Rongga Hidung</text>
+
+              <!-- Langit-langit Mulut (Al-Hanak) & Anak Tekak (Uvula) -->
+              <path d="M 255,235 C 315,212 390,215 445,245 L 445,258 C 390,235 320,235 275,258 C 266,272 260,285 253,275 C 248,265 252,248 255,235 Z"
+                    fill="#F472B6" stroke="#DB2777" stroke-width="2.5" />
+              <text x="325" y="232" font-size="12" font-weight="bold" fill="#831843" font-family="Nunito, sans-serif">Langit-Langit Mulut</text>
+
+              <!-- Rongga Mulut & Saluran Tenggorokan (Al-Halq) -->
+              <path d="M 205,485 L 205,315 C 205,255 245,235 315,235 L 448,255 L 448,325 L 330,335 C 275,340 258,365 258,415 L 258,485 Z"
+                    fill="url(#cavityGrad)" stroke="#E11D48" stroke-width="3" />
+
+              <!-- Gigi Seri Atas & Bawah -->
+              <rect x="434" y="253" width="15" height="23" rx="4" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5" />
+              <rect x="434" y="303" width="15" height="22" rx="4" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2.5" />
+              <text x="462" y="275" font-size="11" font-weight="bold" fill="#334155" font-family="Nunito, sans-serif">Gigi Seri</text>
+
+              <!-- Bibir Atas & Bibir Bawah -->
+              <path d="M 448,243 C 468,242 478,254 466,265 L 448,265 Z" fill="#FB7185" stroke="#BE123C" stroke-width="2.5" />
+              <path d="M 448,313 L 466,313 C 478,324 468,338 448,336 Z" fill="#FB7185" stroke="#BE123C" stroke-width="2.5" />
+
+              <!-- Lidah (Al-Lisan) -->
+              <path d="M 262,375 C 265,310 305,275 365,278 C 402,280 426,288 432,298 C 436,306 422,315 395,318 C 350,322 315,342 302,382 Z"
+                    fill="url(#tongueGrad)" stroke="#BE123C" stroke-width="3" />
+              <text x="320" y="310" font-size="14" font-weight="800" fill="#FFFFFF" font-family="Fredoka, sans-serif">LIDAH (AL-LISAN)</text>
+
+              <!-- Label Tenggorokan -->
+              <text x="122" y="410" font-size="13" font-weight="800" fill="#9F1239" font-family="Fredoka, sans-serif">TENGGOROKAN</text>
+              <text x="135" y="426" font-size="12" font-weight="700" fill="#BE123C" font-family="Nunito, sans-serif">(AL-HALQ)</text>
+
+              <!-- Group Hotspot Interaktif Akan Di-render via JS agar sinkron dengan data guru -->
+              <g id="svg-hotspots-layer"></g>
+            </svg>
+          </div>
+
+          <!-- Panel Daftar 10 Titik Makhraj (Memudahkan klik di layar HP kecil) -->
+          <div class="lg:col-span-5 space-y-3">
+            <h3 class="font-display text-lg font-bold text-slate-800 flex items-center gap-2">
+              <span>📍</span> Pilih Titik Makhraj untuk Dipelajari:
+            </h3>
+            <div id="anatomy-list-buttons" class="space-y-2 max-h-[480px] overflow-y-auto pr-1">
+              <!-- Diisi dinamis oleh JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. MATERI & LATIHAN 8 HARAKAT ==================== -->
+    <section id="view-materi" class="tab-view hidden space-y-6">
+      <!-- Filter 3 Kelompok -->
+      <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border-2 border-teal-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-slate-800">Huruf Hijaiyah & 8 Harakat</h2>
+            <p class="text-slate-600 text-sm sm:text-base">Pilih kelompok makhraj, lalu ketuk salah satu huruf untuk berlatih melafalkan semua harakatnya.</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2" role="tablist">
+            <button onclick="setMateriFilter('all')" data-filter="all" class="filter-btn px-4 py-2.5 rounded-2xl font-display font-bold text-sm transition-all">
+              Semua (28)
+            </button>
+            <button onclick="setMateriFilter('al-halq')" data-filter="al-halq" class="filter-btn px-4 py-2.5 rounded-2xl font-display font-bold text-sm transition-all">
+              Al-Halq (6)
+            </button>
+            <button onclick="setMateriFilter('al-lisan')" data-filter="al-lisan" class="filter-btn px-4 py-2.5 rounded-2xl font-display font-bold text-sm transition-all">
+              Al-Lisan (18)
+            </button>
+            <button onclick="setMateriFilter('asy-syafatain')" data-filter="asy-syafatain" class="filter-btn px-4 py-2.5 rounded-2xl font-display font-bold text-sm transition-all">
+              Asy-Syafatain (4)
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid Kartu Huruf -->
+        <div id="letters-grid" class="mt-6 grid grid-cols-3 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 gap-3" dir="rtl">
+          <!-- Diisi dinamis via JS -->
+        </div>
+      </div>
+
+      <!-- Panel Detail Huruf & 8 Variasi Harakat -->
+      <div id="letter-detail-panel" class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-2 border-amber-200">
+        <!-- Diisi dinamis saat huruf dipilih -->
+      </div>
+    </section>
+
+    <!-- ==================== 4. VIDEO PEMBELAJARAN ==================== -->
+    <section id="view-video" class="tab-view hidden space-y-6">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-2 border-teal-100">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <span class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 font-display font-bold text-xs uppercase">Simak & Tirukan</span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">Video Pembelajaran Makharijul Huruf</h2>
+            <p class="text-slate-600 text-sm sm:text-base">Tonton video penjelasan cara pengucapan huruf yang disiapkan oleh Bapak/Ibu Guru.</p>
+          </div>
+          <button onclick="switchTab('guru')" class="self-start sm:self-auto px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-display font-bold text-sm flex items-center gap-2 transition-colors">
+            <span>⚙️</span> Kelola Video (Guru)
+          </button>
+        </div>
+
+        <!-- Tab Pilihan Video Kelompok -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <button onclick="selectVideoCategory('al-halq')" data-vidcat="al-halq" class="vidcat-btn px-5 py-3 rounded-2xl font-display font-bold text-sm sm:text-base transition-all">
+            1. Video Al-Halq (Tenggorokan)
+          </button>
+          <button onclick="selectVideoCategory('al-lisan')" data-vidcat="al-lisan" class="vidcat-btn px-5 py-3 rounded-2xl font-display font-bold text-sm sm:text-base transition-all">
+            2. Video Al-Lisan (Lidah)
+          </button>
+          <button onclick="selectVideoCategory('asy-syafatain')" data-vidcat="asy-syafatain" class="vidcat-btn px-5 py-3 rounded-2xl font-display font-bold text-sm sm:text-base transition-all">
+            3. Video Asy-Syafatain (Dua Bibir)
+          </button>
+        </div>
+
+        <!-- Container Pemutar Video -->
+        <div id="video-player-container" class="space-y-4">
+          <!-- Diisi dinamis via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. KUIS & EVALUASI INTERAKTIF ==================== -->
+    <section id="view-kuis" class="tab-view hidden space-y-6">
+      <div id="quiz-container" class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-2 border-amber-200 max-w-4xl mx-auto">
+        <!-- Diisi dinamis via JS (Start Screen -> Soal Kuis -> Hasil & Bintang) -->
+      </div>
+    </section>
+
+    <!-- ==================== 6. RUANG GURU (CMS MINI) ==================== -->
+    <section id="view-guru" class="tab-view hidden space-y-6">
+      <!-- Layar Kunci PIN Guru -->
+      <div id="teacher-lock-screen" class="max-w-md mx-auto bg-white rounded-3xl p-8 shadow-lg border-2 border-slate-200 text-center space-y-5">
+        <div class="w-16 h-16 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-3xl mx-auto">
+          🔐
+        </div>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-slate-800">Masuk ke Ruang Guru</h2>
+          <p class="text-slate-600 text-sm mt-1">Halaman khusus guru untuk mengelola materi, video, rekaman audio, soal kuis, dan melihat nilai siswa.</p>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs font-semibold text-amber-800">
+          💡 Petunjuk Pengujian: Masukkan PIN default <span class="font-extrabold underline">1234</span>
+        </div>
+        <form onsubmit="unlockTeacherMode(event)" class="space-y-4">
+          <input id="teacher-pin-input" type="password" maxlength="8" placeholder="Masukkan PIN Guru..." class="w-full text-center text-2xl tracking-widest font-bold px-4 py-3 rounded-2xl border-2 border-slate-300 focus:border-teal-500 focus:outline-none" required />
+          <button type="submit" class="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-lg shadow-md transition-colors">
+            Buka Dashboard Guru
+          </button>
+        </form>
+      </div>
+
+      <!-- Dashboard CMS Guru (Terbuka setelah PIN benar) -->
+      <div id="teacher-dashboard" class="hidden space-y-6">
+        <!-- Header Dashboard Guru -->
+        <div class="bg-slate-800 text-white rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
+          <div>
+            <span class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 font-display font-bold text-xs">Mode Pengelola Konten (CMS)</span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold mt-1">Dashboard Guru Al-Qur'an</h2>
+            <p class="text-slate-300 text-sm">Semua perubahan tersimpan otomatis di browser Anda dan langsung tampil di halaman siswa.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="exportCMSData()" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm transition-colors">
+              📥 Ekspor Data (JSON)
+            </button>
+            <label class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm cursor-pointer transition-colors">
+              📤 Impor JSON
+              <input type="file" accept=".json" onchange="importCMSData(event)" class="hidden" />
+            </label>
+            <button onclick="requestResetCMS()" class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs sm:text-sm transition-colors">
+              🔄 Reset Awal
+            </button>
+            <button onclick="lockTeacherMode()" class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs sm:text-sm transition-colors">
+              🔒 Kunci
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub-Tab Ruang Guru -->
+        <div class="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+          <button onclick="switchTeacherSubTab('materi-cms')" data-tsub="materi-cms" class="tsub-btn px-4 py-2.5 rounded-xl font-display font-bold text-sm transition-all">
+            📝 Edit Materi & Ilustrasi
+          </button>
+          <button onclick="switchTeacherSubTab('video-cms')" data-tsub="video-cms" class="tsub-btn px-4 py-2.5 rounded-xl font-display font-bold text-sm transition-all">
+            🎬 Kelola Video
+          </button>
+          <button onclick="switchTeacherSubTab('audio-cms')" data-tsub="audio-cms" class="tsub-btn px-4 py-2.5 rounded-xl font-display font-bold text-sm transition-all">
+            🎙️ Rekam / Unggah Audio Huruf
+          </button>
+          <button onclick="switchTeacherSubTab('kuis-cms')" data-tsub="kuis-cms" class="tsub-btn px-4 py-2.5 rounded-xl font-display font-bold text-sm transition-all">
+            ❓ Kelola Soal Kuis
+          </button>
+          <button onclick="switchTeacherSubTab('nilai-cms')" data-tsub="nilai-cms" class="tsub-btn px-4 py-2.5 rounded-xl font-display font-bold text-sm transition-all">
+            📊 Rekap Nilai Siswa
+          </button>
+        </div>
+
+        <!-- Konten Sub-Tab Guru -->
+        <div id="teacher-subcontent" class="bg-white rounded-3xl p-6 shadow-md border border-slate-200">
+          <!-- Diisi dinamis via JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL POP-UP PENJELASAN TITIK ANATOMI -->
+  <div id="anatomy-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border-4 border-teal-400 relative my-auto animate-[fadeIn_0.2s_ease-out]">
+      <button onclick="closeAnatomyModal()" aria-label="Tutup Pop-up" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-600 font-bold text-xl flex items-center justify-center transition-colors">
+        ✕
+      </button>
+      <div id="anatomy-modal-body">
+        <!-- Diisi dinamis saat titik anatomi diklik -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KONFIRMASI CUSTOM (Pengganti confirm()) -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-slate-200 text-center space-y-4">
+      <div class="text-4xl">⚠️</div>
+      <h3 id="confirm-modal-title" class="font-display text-xl font-bold text-slate-800">Konfirmasi</h3>
+      <p id="confirm-modal-text" class="text-slate-600 text-sm">Apakah Anda yakin?</p>
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeConfirmModal()" class="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-display font-bold">Batal</button>
+        <button id="confirm-modal-yes" class="flex-1 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-display font-bold">Ya, Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-5 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-sm text-slate-500">
+      <p class="font-semibold">🕌 Media Pembelajaran Al-Qur'an Digital • Makharijul Huruf (SD Kelas 4–6)</p>
+      <p>Sesuai Kaidah Ilmu Tajwid • Dapat Dikelola Mandiri oleh Guru</p>
+    </div>
+  </footer>
+
+  <!-- ==================== JAVASCRIPT LOGIKA LENGKAP ==================== -->
+  <script>
+    /**
+     * 1. DATA BAWAAN LENGKAP & AKURAT SESUAI KAIDAH ILMU TAJWID
+     * - Al-Halq (6 huruf): ء ه | ع ح | غ خ
+     * - Al-Lisan (18 huruf): ق | ك | ج ش ي | ض | ل | ن | ر | ط د ت | ص ز س | ظ ذ ث
+     * - Asy-Syafatain (4 huruf): ف | ب م و
+     */
+    const DEFAULT_MAKHRAJ_POINTS = [
+      {
+        id: 'aqshal-halq',
+        category: 'al-halq',
+        categoryName: 'Al-Halq (Tenggorokan)',
+        name: 'Aqshal Halq (Pangkal Tenggorokan)',
+        letters: ['ء', 'ه'],
+        x: 230,
+        y: 448,
+        color: '#E11D48',
+        organType: 'halq',
+        explanation: 'Keluar dari bagian pangkal tenggorokan yang paling dalam (dekat pita suara/dada). Suara Hamzah (ء) terdengar tegas dan tertahan, sedangkan Ha (هـ) mengalir lembut dengan hembusan napas.',
+        exampleWord: 'أَ - إِ - أُ | هَـ - هِـ - هُـ',
+        customImage: ''
+      },
+      {
+        id: 'wasathul-halq',
+        category: 'al-halq',
+        categoryName: 'Al-Halq (Tenggorokan)',
+        name: 'Wasathul Halq (Tengah Tenggorokan)',
+        letters: ['ع', 'ح'],
+        x: 230,
+        y: 392,
+        color: '#E11D48',
+        organType: 'halq',
+        explanation: 'Keluar dari bagian tengah tenggorokan (sekitar jakun/katup tenggorokan). Huruf \'Ain (ع) berbunyi jernih dari tengah tenggorokan, sedangkan Ha kecil (ح) keluar bersih tanpa suara serak.',
+        exampleWord: 'عَ - عِ - عُ | حَ - حِ - حُ',
+        customImage: ''
+      },
+      {
+        id: 'adnal-halq',
+        category: 'al-halq',
+        categoryName: 'Al-Halq (Tenggorokan)',
+        name: 'Adnal Halq (Ujung Tenggorokan)',
+        letters: ['غ', 'خ'],
+        x: 245,
+        y: 342,
+        color: '#E11D48',
+        organType: 'halq',
+        explanation: 'Keluar dari ujung tenggorokan yang paling dekat dengan pangkal lidah dan rongga mulut. Ghain (غ) bergetar halus dan tebal, sedangkan Kha (خ) terdengar sedikit menggesek di ujung tenggorokan.',
+        exampleWord: 'غَ - غِ - غُ | خَ - خِ - خُ',
+        customImage: ''
+      },
+      {
+        id: 'aqshal-lisan',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Aqshal Lisan (Pangkal Lidah)',
+        letters: ['ق', 'ك'],
+        x: 288,
+        y: 288,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari pangkal lidah yang diangkat menyentuh langit-langit bagian belakang. Huruf Qaf (ق) menyentuh langit-langit lunak (berbunyi tebal & memantul saat sukun), sedangkan Kaf (ك) sedikit lebih ke depan menyentuh langit-langit keras.',
+        exampleWord: 'قَ - قِ - قُ | كَ - كِ - كُ',
+        customImage: ''
+      },
+      {
+        id: 'wasathul-lisan',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Wasathul Lisan (Tengah Lidah)',
+        letters: ['ج', 'ش', 'ي'],
+        x: 345,
+        y: 278,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari bagian tengah lidah yang bertemu dengan langit-langit atas bagian tengah. Jim (ج) menempel kuat, Syin (ش) menyebarkan angin di dalam mulut, dan Ya (ي) terangkat ringan.',
+        exampleWord: 'جَ - شَ - يَ',
+        customImage: ''
+      },
+      {
+        id: 'hafatul-lisan-dhad',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Hafatul Lisan (Tepi Lidah)',
+        letters: ['ض'],
+        x: 368,
+        y: 298,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari salah satu tepi lidah (kiri atau kanan) atau kedua tepi lidah sekaligus yang menempel pada gigi geraham atas bagian dalam. Huruf Dhad (ض) memiliki bunyi tebal dan khas bahasa Arab.',
+        exampleWord: 'ضَ - ضِ - ضُ - أَضْ',
+        customImage: ''
+      },
+      {
+        id: 'adna-hafatil-lisan-lam',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Tepi Lidah Hingga Ujungnya',
+        letters: ['ل'],
+        x: 398,
+        y: 284,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari tepi lidah bagian depan hingga ke ujung lidah, menyentuh gusi gigi-gigi bagian atas (gigi taring hingga gigi seri atas).',
+        exampleWord: 'لَ - لِ - لُ - أَلْ',
+        customImage: ''
+      },
+      {
+        id: 'tharful-lisan-nun-ra',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Ujung Lidah & Gusi Atas (Nun & Ra)',
+        letters: ['ن', 'ر'],
+        x: 416,
+        y: 274,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari ujung lidah yang menyentuh gusi gigi seri atas. Huruf Nun (ن) disertai dengung ringan dari hidung, sedangkan Ra (ر) diucapkan dengan sedikit punggung ujung lidah bergetar halus (tidak berlebihan).',
+        exampleWord: 'نَ - نِ - نُ | رَ - رِ - رُ',
+        customImage: ''
+      },
+      {
+        id: 'tharful-lisan-nathiyah',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Ujung Lidah & Pangkal Gigi Seri Atas',
+        letters: ['ط', 'د', 'ت'],
+        x: 428,
+        y: 268,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari ujung lidah yang menempel tepat pada pangkal gigi seri bagian atas (tempat tumbuhnya gigi). Huruf Tha (ط) dibaca tebal, Dal (د) jelas, dan Ta (ت) disertai hembusan napas lembut.',
+        exampleWord: 'طَ - دَ - تَ',
+        customImage: ''
+      },
+      {
+        id: 'tharful-lisan-asaliyah',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Ujung Lidah & Pangkal Gigi Seri Bawah',
+        letters: ['ص', 'ز', 'س'],
+        x: 425,
+        y: 306,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari ujung lidah yang berada di dekat pangkal gigi seri bagian bawah (suara keluar melalui celah antara gigi seri atas dan bawah sehingga terdengar bunyi desis/shafir).',
+        exampleWord: 'صَ - زَ - سَ',
+        customImage: ''
+      },
+      {
+        id: 'tharful-lisan-litsawiyah',
+        category: 'al-lisan',
+        categoryName: 'Al-Lisan (Lidah)',
+        name: 'Ujung Lidah & Ujung Gigi Seri Atas',
+        letters: ['ظ', 'ذ', 'ث'],
+        x: 438,
+        y: 282,
+        color: '#0284C7',
+        organType: 'lisan',
+        explanation: 'Keluar dari ujung lidah yang sedikit dikeluarkan menyentuh ujung gigi seri bagian atas. Jangan tertukar dengan huruf desis (ز/س/ص)!',
+        exampleWord: 'ظَ - ذَ - ثَ',
+        customImage: ''
+      },
+      {
+        id: 'syafatain-fa',
+        category: 'asy-syafatain',
+        categoryName: 'Asy-Syafatain (Dua Bibir)',
+        name: 'Bibir Bawah Dalam & Ujung Gigi Seri Atas',
+        letters: ['ف'],
+        x: 454,
+        y: 294,
+        color: '#D97706',
+        organType: 'syafatain',
+        explanation: 'Keluar dari bagian dalam bibir bawah yang disentuhkan ringan dengan ujung gigi seri bagian atas sambil mengalirkan udara.',
+        exampleWord: 'فَ - فِ - فُ - أَفْ',
+        customImage: ''
+      },
+      {
+        id: 'syafatain-dua-bibir',
+        category: 'asy-syafatain',
+        categoryName: 'Asy-Syafatain (Dua Bibir)',
+        name: 'Kedua Bibir (Bibir Atas & Bawah)',
+        letters: ['ب', 'م', 'و'],
+        x: 468,
+        y: 288,
+        color: '#D97706',
+        organType: 'syafatain',
+        explanation: 'Keluar dari pertemuan kedua bibir. Ba (ب) dan Mim (م) diucapkan dengan merapatkan kedua bibir, sedangkan Wawu (و) diucapkan dengan memonyongkan/membulatkan kedua bibir.',
+        exampleWord: 'بَ - مَ - وَ',
+        customImage: ''
+      }
+    ];
+
+    // Daftar 28 Huruf Hijaiyah Lengkap dengan bentuk sambung/sukun/tasydid berharakat akurat
+    const LETTERS_DATA = [
+      // Al-Halq (6)
+      { char: 'ء', name: 'Hamzah', latin: 'A / I / U', category: 'al-halq', pointId: 'aqshal-halq', prevPrefix: 'أَ', sukunForm: 'أَأْ', tasydidForm: 'أَءَّ', tip: 'Suara tegas dari pangkal tenggorokan.' },
+      { char: 'ه', name: 'Ha', latin: 'Ha / Hi / Hu', category: 'al-halq', pointId: 'aqshal-halq', prevPrefix: 'أَ', sukunForm: 'أَهْ', tasydidForm: 'أَهَّ', tip: 'Hembusan napas lembut dari pangkal tenggorokan.' },
+      { char: 'ع', name: '\'Ain', latin: '\'A / \'I / \'U', category: 'al-halq', pointId: 'wasathul-halq', prevPrefix: 'أَ', sukunForm: 'أَعْ', tasydidForm: 'أَعَّ', tip: 'Tekan lembut bagian tengah tenggorokan.' },
+      { char: 'ح', name: 'Ha (Kecil)', latin: 'Ha / Hi / Hu', category: 'al-halq', pointId: 'wasathul-halq', prevPrefix: 'أَ', sukunForm: 'أَحْ', tasydidForm: 'أَحَّ', tip: 'Suara bersih & jernih dari tengah tenggorokan.' },
+      { char: 'غ', name: 'Ghain', latin: 'Gha / Ghi / Ghu', category: 'al-halq', pointId: 'adnal-halq', prevPrefix: 'أَ', sukunForm: 'أَغْ', tasydidForm: 'أَغَّ', tip: 'Tebal dari ujung tenggorokan (seperti berkumur halus).' },
+      { char: 'خ', name: 'Kha', latin: 'Kha / Khi / Khu', category: 'al-halq', pointId: 'adnal-halq', prevPrefix: 'أَ', sukunForm: 'أَخْ', tasydidForm: 'أَخَّ', tip: 'Suara menggesek di ujung tenggorokan.' },
+
+      // Al-Lisan (18)
+      { char: 'ق', name: 'Qaf', latin: 'Qa / Qi / Qu', category: 'al-lisan', pointId: 'aqshal-lisan', prevPrefix: 'أَ', sukunForm: 'أَقْ', tasydidForm: 'أَقَّ', tip: 'Pangkal lidah menyentuh langit-langit lunak, tebal & memantul saat sukun.' },
+      { char: 'ك', name: 'Kaf', latin: 'Ka / Ki / Ku', category: 'al-lisan', pointId: 'aqshal-lisan', prevPrefix: 'أَ', sukunForm: 'أَكْ', tasydidForm: 'أَكَّ', tip: 'Pangkal lidah sedikit di depan Qaf, ada desis napas halus.' },
+      { char: 'ج', name: 'Jim', latin: 'Ja / Ji / Ju', category: 'al-lisan', pointId: 'wasathul-lisan', prevPrefix: 'أَ', sukunForm: 'أَجْ', tasydidForm: 'أَجَّ', tip: 'Tengah lidah menempel kuat ke langit-langit, memantul saat sukun.' },
+      { char: 'ش', name: 'Syin', latin: 'Sya / Syi / Syu', category: 'al-lisan', pointId: 'wasathul-lisan', prevPrefix: 'أَ', sukunForm: 'أَشْ', tasydidForm: 'أَشَّ', tip: 'Tengah lidah terangkat & menyebarkan angin di mulut.' },
+      { char: 'ي', name: 'Ya', latin: 'Ya / Yi / Yu', category: 'al-lisan', pointId: 'wasathul-lisan', prevPrefix: 'أَ', sukunForm: 'أَيْ', tasydidForm: 'أَيَّ', tip: 'Tengah lidah terangkat ringan tanpa menempel.' },
+      { char: 'ض', name: 'Dhad', latin: 'Dha / Dhi / Dhu', category: 'al-lisan', pointId: 'hafatul-lisan-dhad', prevPrefix: 'أَ', sukunForm: 'أَضْ', tasydidForm: 'أَضَّ', tip: 'Tepi lidah menempel pada gigi geraham atas, bunyi tebal.' },
+      { char: 'ل', name: 'Lam', latin: 'La / Li / Lu', category: 'al-lisan', pointId: 'adna-hafatil-lisan-lam', prevPrefix: 'أَ', sukunForm: 'أَلْ', tasydidForm: 'أَلَّ', tip: 'Tepi lidah depan hingga ujung menyentuh gusi atas.' },
+      { char: 'ن', name: 'Nun', latin: 'Na / Ni / Nu', category: 'al-lisan', pointId: 'tharful-lisan-nun-ra', prevPrefix: 'أَ', sukunForm: 'أَنْ', tasydidForm: 'أَنَّ', tip: 'Ujung lidah menyentuh gusi gigi seri atas disertai dengung ringan.' },
+      { char: 'ر', name: 'Ra', latin: 'Ra / Ri / Ru', category: 'al-lisan', pointId: 'tharful-lisan-nun-ra', prevPrefix: 'أَ', sukunForm: 'أَرْ', tasydidForm: 'أَرَّ', tip: 'Ujung lidah & sedikit punggungnya menyentuh gusi atas.' },
+      { char: 'ط', name: 'Tha', latin: 'Tha / Thi / Thu', category: 'al-lisan', pointId: 'tharful-lisan-nathiyah', prevPrefix: 'أَ', sukunForm: 'أَطْ', tasydidForm: 'أَطَّ', tip: 'Ujung lidah di pangkal gigi seri atas, dibaca tebal.' },
+      { char: 'د', name: 'Dal', latin: 'Da / Di / Du', category: 'al-lisan', pointId: 'tharful-lisan-nathiyah', prevPrefix: 'أَ', sukunForm: 'أَدْ', tasydidForm: 'أَدَّ', tip: 'Ujung lidah di pangkal gigi seri atas, memantul saat sukun.' },
+      { char: 'ت', name: 'Ta', latin: 'Ta / Ti / Tu', category: 'al-lisan', pointId: 'tharful-lisan-nathiyah', prevPrefix: 'أَ', sukunForm: 'أَتْ', tasydidForm: 'أَتَّ', tip: 'Ujung lidah di pangkal gigi seri atas dengan desis napas lembut.' },
+      { char: 'ص', name: 'Shad', latin: 'Sha / Shi / Shu', category: 'al-lisan', pointId: 'tharful-lisan-asaliyah', prevPrefix: 'أَ', sukunForm: 'أَصْ', tasydidForm: 'أَصَّ', tip: 'Ujung lidah di pangkal gigi seri bawah, berdesis tebal.' },
+      { char: 'ز', name: 'Zai', latin: 'Za / Zi / Zu', category: 'al-lisan', pointId: 'tharful-lisan-asaliyah', prevPrefix: 'أَ', sukunForm: 'أَزْ', tasydidForm: 'أَزَّ', tip: 'Ujung lidah di pangkal gigi seri bawah, berdesis nyaring.' },
+      { char: 'س', name: 'Sin', latin: 'Sa / Si / Su', category: 'al-lisan', pointId: 'tharful-lisan-asaliyah', prevPrefix: 'أَ', sukunForm: 'أَسْ', tasydidForm: 'أَسَّ', tip: 'Ujung lidah di pangkal gigi seri bawah, berdesis tipis.' },
+      { char: 'ظ', name: 'Zha', latin: 'Zha / Zhi / Zhu', category: 'al-lisan', pointId: 'tharful-lisan-litsawiyah', prevPrefix: 'أَ', sukunForm: 'أَظْ', tasydidForm: 'أَظَّ', tip: 'Ujung lidah menyentuh ujung gigi seri atas, dibaca tebal.' },
+      { char: 'ذ', name: 'Dzal', latin: 'Dza / Dzi / Dzu', category: 'al-lisan', pointId: 'tharful-lisan-litsawiyah', prevPrefix: 'أَ', sukunForm: 'أَذْ', tasydidForm: 'أَذَّ', tip: 'Ujung lidah menyentuh ujung gigi seri atas dengan lembut.' },
+      { char: 'ث', name: 'Tsa', latin: 'Tsa / Tsi / Tsu', category: 'al-lisan', pointId: 'tharful-lisan-litsawiyah', prevPrefix: 'أَ', sukunForm: 'أَثْ', tasydidForm: 'أَثَّ', tip: 'Ujung lidah menyentuh ujung gigi seri atas sambil mengalirkan udara.' },
+
+      // Asy-Syafatain (4)
+      { char: 'ف', name: 'Fa', latin: 'Fa / Fi / Fu', category: 'asy-syafatain', pointId: 'syafatain-fa', prevPrefix: 'أَ', sukunForm: 'أَفْ', tasydidForm: 'أَفَّ', tip: 'Bibir bawah bagian dalam menyentuh ujung gigi seri atas.' },
+      { char: 'ب', name: 'Ba', latin: 'Ba / Bi / Bu', category: 'asy-syafatain', pointId: 'syafatain-dua-bibir', prevPrefix: 'أَ', sukunForm: 'أَبْ', tasydidForm: 'أَبَّ', tip: 'Merapatkan kedua bibir, memantul jelas saat sukun.' },
+      { char: 'م', name: 'Mim', latin: 'Ma / Mi / Mu', category: 'asy-syafatain', pointId: 'syafatain-dua-bibir', prevPrefix: 'أَ', sukunForm: 'أَمْ', tasydidForm: 'أَمَّ', tip: 'Merapatkan kedua bibir disertai dengung lembut.' },
+      { char: 'و', name: 'Wawu', latin: 'Wa / Wi / Wu', category: 'asy-syafatain', pointId: 'syafatain-dua-bibir', prevPrefix: 'أَ', sukunForm: 'أَوْ', tasydidForm: 'أَوَّ', tip: 'Membulatkan/memonyongkan kedua bibir tanpa menempel.' }
+    ];
+
+    const DEFAULT_VIDEOS = {
+      'al-halq': {
+        title: 'Video Belajar Al-Halq (Huruf Tenggorokan: ء ه ع ح غ خ)',
+        description: 'Simak cara membedakan posisi pangkal, tengah, dan ujung tenggorokan saat melafalkan huruf-huruf Al-Halq.',
+        type: 'youtube',
+        url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Guru dapat mengganti langsung di Ruang Guru
+        customVideoDataUrl: '',
+        note: 'Guru dapat mengganti tautan YouTube atau mengunggah file video MP4 langsung melalui menu Ruang Guru.'
+      },
+      'al-lisan': {
+        title: 'Video Belajar Al-Lisan (18 Huruf Lidah)',
+        description: 'Pelajari gerakan pangkal, tengah, tepi, dan ujung lidah ketika bertemu langit-langit maupun gigi seri.',
+        type: 'youtube',
+        url: '',
+        customVideoDataUrl: '',
+        note: 'Belum ada tautan video khusus untuk Al-Lisan. Bapak/Ibu Guru dapat menambahkan video YouTube atau unggah video MP4 di Ruang Guru.'
+      },
+      'asy-syafatain': {
+        title: 'Video Belajar Asy-Syafatain (Huruf Bibir: ف ب م و)',
+        description: 'Perhatikan perbedaan posisi bibir bawah pada huruf Fa (ف) dan kedua bibir pada Ba (ب), Mim (م), dan Wawu (و).',
+        type: 'youtube',
+        url: '',
+        customVideoDataUrl: '',
+        note: 'Belum ada tautan video khusus untuk Asy-Syafatain. Silakan tambahkan melalui menu Ruang Guru.'
+      }
+    };
+
+    const DEFAULT_QUIZ_QUESTIONS = [
+      {
+        id: 'q1',
+        question: 'Huruf ع (Ain) dan ح (Ha) keluar dari bagian tenggorokan sebelah mana?',
+        arabicCue: 'عَ - حَ',
+        options: ['Pangkal tenggorokan', 'Tengah tenggorokan', 'Ujung tenggorokan', 'Kedua bibir'],
+        correctIndex: 1,
+        explanation: 'Huruf ع dan ح keluar dari Wasathul Halq (tengah tenggorokan).'
+      },
+      {
+        id: 'q2',
+        question: 'Manakah kelompok huruf yang keluar dari Asy-Syafatain (dua bibir)?',
+        arabicCue: 'ف - ب - م - و',
+        options: ['ق ك ج ش', 'ء ه ع ح', 'ف ب م و', 'ظ ذ ث'],
+        correctIndex: 2,
+        explanation: 'Huruf ف, ب, م, dan و adalah empat huruf yang keluar dari area bibir (Asy-Syafatain).'
+      },
+      {
+        id: 'q3',
+        question: 'Bagaimana posisi lidah saat melafalkan huruf ظ, ذ, dan ث?',
+        arabicCue: 'ظَ - ذَ - ثَ',
+        options: [
+          'Ujung lidah menyentuh ujung gigi seri atas',
+          'Pangkal lidah menyentuh langit-langit',
+          'Tepi lidah menyentuh gigi geraham',
+          'Ujung lidah di pangkal gigi seri bawah'
+        ],
+        correctIndex: 0,
+        explanation: 'Huruf ظ, ذ, dan ث keluar dari ujung lidah yang menyentuh ujung gigi seri atas.'
+      },
+      {
+        id: 'q4',
+        question: 'Huruf ض (Dhad) memiliki makhraj yang istimewa, yaitu keluar dari...',
+        arabicCue: 'ضَ - أَضْ',
+        options: ['Ujung tenggorokan', 'Tepi lidah dengan gigi geraham atas', 'Kedua bibir dirapatkan', 'Pangkal hidung'],
+        correctIndex: 1,
+        explanation: 'Huruf ض keluar dari salah satu atau kedua tepi lidah yang menempel pada gigi geraham atas.'
+      },
+      {
+        id: 'q5',
+        question: 'Huruf ق (Qaf) dan ك (Kaf) termasuk kelompok Al-Lisan yang keluar dari...',
+        arabicCue: 'قَ - كَ',
+        options: ['Ujung lidah', 'Tengah lidah', 'Pangkal lidah', 'Bibir bawah'],
+        correctIndex: 2,
+        explanation: 'Huruf ق dan ك keluar dari Aqshal Lisan (pangkal lidah).'
+      },
+      {
+        id: 'q6',
+        question: 'Perhatikan huruf ف (Fa). Tempat keluarnya huruf ف adalah...',
+        arabicCue: 'فَ - فِ - فُ',
+        options: [
+          'Bibir bawah bagian dalam dengan ujung gigi seri atas',
+          'Kedua bibir dimonyongkan',
+          'Tengah tenggorokan',
+          'Ujung lidah dengan gusi atas'
+        ],
+        correctIndex: 0,
+        explanation: 'Huruf ف keluar dari perut/bagian dalam bibir bawah yang menyentuh ujung gigi seri atas.'
+      }
+    ];
+
+    /**
+     * 2. STATE APLIKASI & PENYIMPANAN LOCALSTORAGE
+     */
+    const STORAGE_KEY = 'sahabat_tajwid_cms_v1';
+
+    let appState = {
+      makhrajPoints: JSON.parse(JSON.stringify(DEFAULT_MAKHRAJ_POINTS)),
+      videos: JSON.parse(JSON.stringify(DEFAULT_VIDEOS)),
+      customAudioMap: {}, // key: huruf char, value: dataURL audio rekaman/unggahan guru
+      quizQuestions: JSON.parse(JSON.stringify(DEFAULT_QUIZ_QUESTIONS)),
+      studentResults: [], // { name, score, correct, total, stars, date }
+      studentProgress: {
+        stars: 0,
+        learnedLetters: []
+      }
+    };
+
+    let currentTab = 'beranda';
+    let currentMateriFilter = 'all';
+    let selectedLetterChar = 'ء';
+    let selectedVideoCat = 'al-halq';
+    let isTeacherUnlocked = false;
+    let currentTeacherSubTab = 'materi-cms';
+
+    // State Kuis Aktif
+    let quizRuntime = {
+      active: false,
+      studentName: '',
+      currentIndex: 0,
+      score: 0,
+      correctCount: 0,
+      answered: false,
+      selectedOption: null
+    };
+
+    // State Perekam Audio Guru
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecordingAudio = false;
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          appState = {
+            ...appState,
+            ...parsed,
+            studentProgress: {
+              stars: parsed.studentProgress?.stars || 0,
+              learnedLetters: parsed.studentProgress?.learnedLetters || []
+            }
+          };
+        }
+      } catch (e) {
+        console.error('Gagal memuat data dari localStorage:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        updateHeaderAndHomeStats();
+      } catch (e) {
+        showToast('Penyimpanan penuh! Gunakan file audio/video berukuran lebih kecil.', 'error');
+      }
+    }
+
+    /**
+     * 3. UTILITAS NOTIFIKASI & AUDIO (WEB SPEECH API + CUSTOM AUDIO GURU)
+     */
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-teal-600 text-white border-teal-400',
+        info: 'bg-sky-600 text-white border-sky-400',
+        warning: 'bg-amber-500 text-slate-900 border-amber-300',
+        error: 'bg-rose-600 text-white border-rose-400'
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-lg border-2 font-bold text-sm flex items-center justify-between gap-3 transition-all transform translate-y-0 ${colors[type] || colors.success}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    /**
+     * Memutar audio pelafalan Arab:
+     * 1. Cek apakah guru mengunggah/merekam audio khusus untuk huruf dasar tersebut (jika playBaseCustom = true).
+     * 2. Gunakan Web Speech API Bahasa Arab ('ar-SA') untuk melafalkan teks berharakat.
+     * 3. Jika browser tidak memiliki suara ar-SA, tetap berbunyi dengan fallback + efek visual lembut.
+     */
+    function playArabicAudio(arabicText, baseChar = null, isBaseLetter = false) {
+      // Jika huruf dasar dan guru punya audio rekaman/unggahan khusus
+      if (isBaseLetter && baseChar && appState.customAudioMap[baseChar]) {
+        try {
+          const audio = new Audio(appState.customAudioMap[baseChar]);
+          audio.play();
+          showToast(`🔊 Memutar rekaman suara guru untuk huruf ${baseChar}`, 'info');
+          return;
+        } catch (err) {
+          console.warn('Gagal memutar audio custom, beralih ke Web Speech API', err);
+        }
+      }
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(arabicText);
+        utterance.lang = 'ar-SA';
+        utterance.rate = 0.78; // Sedikit lebih lambat agar jelas bagi siswa SD
+        utterance.pitch = 1.05;
+
+        const voices = window.speechSynthesis.getVoices();
+        const arVoice = voices.find(v => v.lang.includes('ar'));
+        if (arVoice) {
+          utterance.voice = arVoice;
+        }
+
+        utterance.onerror = () => {
+          playGentleToneFallback();
+        };
+
+        window.speechSynthesis.speak(utterance);
+      } else {
+        playGentleToneFallback();
+        showToast('Browser tidak mendukung suara otomatis, dengarkan nada panduan.', 'warning');
+      }
+    }
+
+    // Nada lembut Web Audio API jika perangkat tidak punya TTS Arab sama sekali
+    function playGentleToneFallback() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } catch (e) {}
+    }
+
+    /**
+     * 4. NAVIGASI & UPDATE STATISTIK
+     */
+    function switchTab(tabName) {
+      currentTab = tabName;
+      document.querySelectorAll('.tab-view').forEach(sec => sec.classList.add('hidden'));
+      const activeSec = document.getElementById(`view-${tabName}`);
+      if (activeSec) activeSec.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        const isTarget = btn.getAttribute('data-tab') === tabName;
+        if (tabName === 'guru' && btn.getAttribute('data-tab') === 'guru') {
+          btn.className = 'nav-btn ml-auto flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-bold text-sm sm:text-base whitespace-nowrap transition-all bg-slate-800 text-white shadow-md';
+        } else if (btn.getAttribute('data-tab') === 'guru') {
+          btn.className = 'nav-btn ml-auto flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700';
+        } else if (isTarget) {
+          btn.className = 'nav-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-bold text-sm sm:text-base whitespace-nowrap transition-all bg-teal-600 text-white shadow-md scale-[1.02]';
+        } else {
+          btn.className = 'nav-btn flex items-center gap-2 px-4 py-2.5 rounded-2xl font-display font-semibold text-sm sm:text-base whitespace-nowrap transition-all bg-slate-100/80 hover:bg-teal-50 text-slate-700 hover:text-teal-700';
+        }
+      });
+
+      if (tabName === 'anatomi') renderAnatomyMap();
+      if (tabName === 'materi') {
+        renderLettersGrid();
+        renderLetterDetail(selectedLetterChar);
+      }
+      if (tabName === 'video') renderVideoSection();
+      if (tabName === 'kuis' && !quizRuntime.active) renderQuizStartScreen();
+      if (tabName === 'guru' && isTeacherUnlocked) renderTeacherSubContent();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openCategoryMateri(cat) {
+      currentMateriFilter = cat;
+      const firstLetter = LETTERS_DATA.find(l => l.category === cat);
+      if (firstLetter) selectedLetterChar = firstLetter.char;
+      switchTab('materi');
+    }
+
+    function markLetterLearned(char) {
+      if (!appState.studentProgress.learnedLetters.includes(char)) {
+        appState.studentProgress.learnedLetters.push(char);
+        appState.studentProgress.stars += 1;
+        saveState();
+      }
+    }
+
+    function updateHeaderAndHomeStats() {
+      const learnedCount = appState.studentProgress.learnedLetters.length;
+      const stars = appState.studentProgress.stars;
+      document.getElementById('header-stars').textContent = stars;
+      document.getElementById('header-learned').textContent = learnedCount;
+
+      const pct = Math.min(100, Math.round((learnedCount / 28) * 100));
+      document.getElementById('home-progress-text').textContent = `${learnedCount} / 28 Huruf (${pct}%)`;
+      document.getElementById('home-progress-bar').style.width = `${pct}%`;
+
+      // Update Lencana
+      const bExplorer = document.getElementById('badge-explorer');
+      const bQari = document.getElementById('badge-qari');
+      const bChampion = document.getElementById('badge-champion');
+
+      if (learnedCount >= 10) {
+        bExplorer.classList.remove('opacity-50', 'bg-slate-100');
+        bExplorer.classList.add('bg-amber-50', 'border-amber-400', 'shadow-sm');
+      }
+      if (learnedCount >= 28) {
+        bQari.classList.remove('opacity-50', 'bg-slate-100');
+        bQari.classList.add('bg-teal-50', 'border-teal-400', 'shadow-sm');
+      }
+      const hasHighScore = appState.studentResults.some(r => r.score >= 80);
+      if (hasHighScore) {
+        bChampion.classList.remove('opacity-50', 'bg-slate-100');
+        bChampion.classList.add('bg-sky-50', 'border-sky-400', 'shadow-sm');
+      }
+    }
+
+    /**
+     * 5. RENDER PETA ANATOMI INTERAKTIF & POP-UP
+     */
+    function renderAnatomyMap() {
+      const svgLayer = document.getElementById('svg-hotspots-layer');
+      const listContainer = document.getElementById('anatomy-list-buttons');
+      svgLayer.innerHTML = '';
+      listContainer.innerHTML = '';
+
+      appState.makhrajPoints.forEach((pt, idx) => {
+        // 1. Titik Hotspot pada SVG
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'cursor-pointer group');
+        g.setAttribute('transform', `translate(${pt.x}, ${pt.y})`);
+        g.onclick = () => openAnatomyModal(pt.id);
+
+        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        ring.setAttribute('r', '14');
+        ring.setAttribute('fill', pt.color);
+        ring.setAttribute('class', 'hotspot-ring');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('r', '11');
+        circle.setAttribute('fill', pt.color);
+        circle.setAttribute('stroke', '#FFFFFF');
+        circle.setAttribute('stroke-width', '3');
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('y', '4');
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('fill', '#FFFFFF');
+        label.setAttribute('font-size', '11');
+        label.setAttribute('font-weight', 'bold');
+        label.setAttribute('font-family', 'Fredoka, sans-serif');
+        label.textContent = idx + 1;
+
+        g.appendChild(ring);
+        g.appendChild(circle);
+        g.appendChild(label);
+        svgLayer.appendChild(g);
+
+        // 2. Tombol Daftar di Samping Peta
+        const badgeBg = pt.category === 'al-halq'
+          ? 'bg-rose-500'
+          : pt.category === 'al-lisan'
+            ? 'bg-sky-600'
+            : 'bg-amber-500';
+
+        const btn = document.createElement('button');
+        btn.onclick = () => openAnatomyModal(pt.id);
+        btn.className = 'w-full text-left p-3 rounded-2xl bg-slate-50 hover:bg-teal-50 border-2 border-slate-200/80 hover:border-teal-400 transition-all flex items-center justify-between gap-3 group';
+        btn.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-7 h-7 rounded-full ${badgeBg} text-white font-display font-bold text-xs flex items-center justify-center shrink-0">
+              ${idx + 1}
+            </span>
+            <div class="truncate">
+              <div class="font-display font-bold text-sm text-slate-800 group-hover:text-teal-700 truncate">${pt.name}</div>
+              <div class="text-xs text-slate-500">${pt.categoryName}</div>
+            </div>
+          </div>
+          <div class="arabic-text text-xl font-bold text-slate-800 bg-white px-2.5 py-0.5 rounded-xl border border-slate-200 shrink-0">
+            ${pt.letters.join(' ')}
+          </div>
+        `;
+        listContainer.appendChild(btn);
+      });
+    }
+
+    function openAnatomyModal(pointId) {
+      const pt = appState.makhrajPoints.find(p => p.id === pointId);
+      if (!pt) return;
+
+      // Tandai huruf-huruf di titik ini sebagai dipelajari
+      pt.letters.forEach(ch => markLetterLearned(ch));
+
+      // Animasi visual sederhana organ bicara sesuai jenis makhraj
+      let organAnimationHTML = '';
+      if (pt.organType === 'halq') {
+        organAnimationHTML = `
+          <div class="flex items-center justify-center gap-4 bg-rose-50 rounded-2xl p-4 border border-rose-200">
+            <div class="w-16 h-16 rounded-full bg-rose-500/20 flex items-center justify-center anim-halq">
+              <div class="w-9 h-9 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-xs">Suara</div>
+            </div>
+            <div class="text-xs sm:text-sm text-rose-900 font-semibold">
+              <strong>Simulasi Gerakan:</strong> Getaran suara berasal dari rongga tenggorokan saat udara mengalir.
+            </div>
+          </div>`;
+      } else if (pt.organType === 'lisan') {
+        organAnimationHTML = `
+          <div class="flex items-center justify-center gap-4 bg-sky-50 rounded-2xl p-4 border border-sky-200">
+            <div class="relative w-20 h-14 flex flex-col justify-between items-center">
+              <div class="w-16 h-3 bg-pink-400 rounded-full"></div>
+              <div class="w-14 h-5 bg-rose-500 rounded-t-full anim-lisan"></div>
+            </div>
+            <div class="text-xs sm:text-sm text-sky-900 font-semibold">
+              <strong>Simulasi Gerakan:</strong> Bagian lidah terangkat/menyentuh titik makhraj pada langit-langit atau gigi.
+            </div>
+          </div>`;
+      } else {
+        organAnimationHTML = `
+          <div class="flex items-center justify-center gap-4 bg-amber-50 rounded-2xl p-4 border border-amber-200">
+            <div class="flex flex-col items-center gap-1 anim-syafatain">
+              <div class="w-14 h-3.5 bg-rose-400 rounded-t-full"></div>
+              <div class="w-14 h-3.5 bg-rose-500 rounded-b-full"></div>
+            </div>
+            <div class="text-xs sm:text-sm text-amber-900 font-semibold">
+              <strong>Simulasi Gerakan:</strong> Posisi kedua bibir atau bibir bawah dengan ujung gigi seri atas bekerja membentuk bunyi.
+            </div>
+          </div>`;
+      }
+
+      const customImgBlock = pt.customImage
+        ? `<div class="rounded-2xl overflow-hidden border border-slate-200 max-h-48 flex justify-center bg-slate-50">
+             <img src="${pt.customImage}" alt="Ilustrasi ${pt.name}" class="object-contain max-h-48" onerror="this.style.display='none'" />
+           </div>`
+        : '';
+
+      const lettersButtonsHTML = pt.letters.map(ch => `
+        <button onclick="playArabicAudio('${ch}َ', '${ch}', true)" class="flex flex-col items-center justify-center px-5 py-3 rounded-2xl bg-teal-50 hover:bg-teal-100 border-2 border-teal-300 transition-transform active:scale-95">
+          <span class="arabic-text text-4xl font-bold text-teal-800">${ch}</span>
+          <span class="text-xs font-bold text-teal-700 mt-1 flex items-center gap-1">🔊 Dengarkan</span>
+        </button>
+      `).join('');
+
+      document.getElementById('anatomy-modal-body').innerHTML = `
+        <div class="space-y-4">
+          <div>
+            <span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800 font-display font-bold text-xs">${pt.categoryName}</span>
+            <h3 class="font-display text-2xl font-bold text-slate-800 mt-1">${pt.name}</h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            ${lettersButtonsHTML}
+          </div>
+
+          ${organAnimationHTML}
+          ${customImgBlock}
+
+          <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2">
+            <div class="font-display font-bold text-slate-800 text-sm">📖 Penjelasan Posisi Organ Pengucapan:</div>
+            <p class="text-slate-700 text-sm sm:text-base leading-relaxed">${pt.explanation}</p>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div class="bg-amber-50 px-4 py-2 rounded-2xl border border-amber-200">
+              <span class="text-xs font-bold text-amber-800 block">Contoh Pelafalan:</span>
+              <span class="arabic-text text-2xl font-bold text-slate-800">${pt.exampleWord}</span>
+            </div>
+            <button onclick="closeAnatomyModal(); openLetterFromModal('${pt.letters[0]}')" class="px-5 py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-display font-bold text-sm transition-colors">
+              Latihan 8 Harakat Huruf Ini →
+            </button>
+          </div>
+        </div>
+      `;
+
+      const modal = document.getElementById('anatomy-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAnatomyModal() {
+      const modal = document.getElementById('anatomy-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openLetterFromModal(char) {
+      selectedLetterChar = char;
+      currentMateriFilter = 'all';
+      switchTab('materi');
+    }
+
+    /**
+     * 6. RENDER MATERI HURUF & 8 VARIASI HARAKAT
+     */
+    function setMateriFilter(filter) {
+      currentMateriFilter = filter;
+      renderLettersGrid();
+    }
+
+    function renderLettersGrid() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        const isActive = btn.getAttribute('data-filter') === currentMateriFilter;
+        btn.className = isActive
+          ? 'filter-btn px-4 py-2.5 rounded-2xl font-display font-bold text-sm transition-all bg-teal-600 text-white shadow-md'
+          : 'filter-btn px-4 py-2.5 rounded-2xl font-display font-bold text-sm transition-all bg-slate-100 hover:bg-slate-200 text-slate-700';
+      });
+
+      const filtered = currentMateriFilter === 'all'
+        ? LETTERS_DATA
+        : LETTERS_DATA.filter(l => l.category === currentMateriFilter);
+
+      const grid = document.getElementById('letters-grid');
+      grid.innerHTML = filtered.map(item => {
+        const isSelected = item.char === selectedLetterChar;
+        const isLearned = appState.studentProgress.learnedLetters.includes(item.char);
+        const hasCustomAudio = Boolean(appState.customAudioMap[item.char]);
+
+        return `
+          <button onclick="selectLetter('${item.char}')"
+            class="relative p-3 rounded-2xl border-2 transition-all flex flex-col items-center justify-center ${
+              isSelected
+                ? 'bg-amber-100 border-amber-500 shadow-md scale-105'
+                : 'bg-slate-50 hover:bg-teal-50 border-slate-200 hover:border-teal-400'
+            }">
+            ${isLearned ? '<span class="absolute top-1 left-1.5 text-xs" title="Sudah dipelajari">⭐</span>' : ''}
+            ${hasCustomAudio ? '<span class="absolute top-1 right-1.5 text-xs" title="Ada rekaman guru">🎙️</span>' : ''}
+            <span class="arabic-text text-3xl sm:text-4xl font-bold text-slate-800">${item.char}</span>
+            <span class="text-[11px] font-bold text-slate-500 mt-0.5" dir="ltr">${item.name}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectLetter(char) {
+      selectedLetterChar = char;
+      markLetterLearned(char);
+      renderLettersGrid();
+      renderLetterDetail(char);
+    }
+
+    function renderLetterDetail(char) {
+      const item = LETTERS_DATA.find(l => l.char === char) || LETTERS_DATA[0];
+      const point = appState.makhrajPoints.find(p => p.id === item.pointId);
+      const hasCustomAudio = Boolean(appState.customAudioMap[item.char]);
+
+      // 8 Variasi Harakat Wajib (Fathah, Kasrah, Dhammah, Fathatain, Kasratain, Dhammatain, Sukun + huruf pendahulu, Tasydid + huruf pendahulu)
+      const harakatCards = [
+        { label: '1. Fathah (ـَ)', arabic: `${item.char}َ`, latin: `${item.name} Fathah` },
+        { label: '2. Kasrah (ـِ)', arabic: `${item.char}ِ`, latin: `${item.name} Kasrah` },
+        { label: '3. Dhammah (ـُ)', arabic: `${item.char}ُ`, latin: `${item.name} Dhammah` },
+        { label: '4. Fathatain (ـً)', arabic: `${item.char}ًا`, latin: `${item.name} Fathatain` },
+        { label: '5. Kasratain (ـٍ)', arabic: `${item.char}ٍ`, latin: `${item.name} Kasratain` },
+        { label: '6. Dhammatain (ـٌ)', arabic: `${item.char}ٌ`, latin: `${item.name} Dhammatain` },
+        { label: '7. Sukun (ـْ) + Pendahulu', arabic: item.sukunForm, latin: `Latihan Sukun` },
+        { label: '8. Tasydid (ـّ) + Pendahulu', arabic: item.tasydidForm, latin: `Latihan Tasydid` }
+      ];
+
+      const panel = document.getElementById('letter-detail-panel');
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <!-- Kartu Huruf Utama -->
+          <div class="lg:col-span-4 bg-gradient-to-br from-teal-500 to-emerald-600 text-white rounded-3xl p-6 text-center shadow-lg space-y-3">
+            <div class="inline-block px-3 py-1 rounded-full bg-white/20 text-xs font-bold">
+              ${point ? point.categoryName : ''}
+            </div>
+            <div class="arabic-text text-7xl sm:text-8xl font-bold py-2 drop-shadow">
+              ${item.char}
+            </div>
+            <div>
+              <h3 class="font-display text-2xl font-bold">Huruf ${item.name}</h3>
+              <p class="text-teal-100 text-sm font-semibold">${point ? point.name : ''}</p>
+            </div>
+            <button onclick="playArabicAudio('${item.char}َ', '${item.char}', true)"
+              class="w-full py-3 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-display font-bold text-base shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2">
+              <span>🔊</span> ${hasCustomAudio ? 'Putar Suara Guru' : 'Dengarkan Huruf'}
+            </button>
+          </div>
+
+          <!-- Grid 8 Harakat & Tips -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-sky-700">Cara Melafalkan:</span>
+                <p class="text-slate-800 font-semibold text-sm sm:text-base">${item.tip}</p>
+              </div>
+              <button onclick="openAnatomyModal('${item.pointId}')" class="shrink-0 px-3.5 py-2 rounded-xl bg-white hover:bg-sky-100 text-sky-700 border border-sky-300 font-bold text-xs transition-colors">
+                🗺️ Lihat di Anatomi
+              </button>
+            </div>
+
+            <div>
+              <h4 class="font-display font-bold text-slate-800 mb-2.5 flex items-center gap-2">
+                <span>🎶</span> Ketuk Kartu Harakat di Bawah untuk Mendengar & Menirukan:
+              </h4>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                ${harakatCards.map(h => `
+                  <button onclick="playArabicAudio('${h.arabic}')"
+                    class="p-3.5 rounded-2xl bg-cream hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-400 transition-all text-center group active:scale-95 shadow-sm">
+                    <div class="text-[11px] font-bold text-slate-500 group-hover:text-amber-700 mb-1">${h.label}</div>
+                    <div class="arabic-text text-4xl sm:text-5xl font-bold text-slate-800 py-1">${h.arabic}</div>
+                    <div class="mt-1 inline-flex items-center gap-1 text-xs font-bold text-teal-600">
+                      <span>🔊</span> Putar
+                    </div>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * 7. RENDER VIDEO PEMBELAJARAN
+     */
+    function selectVideoCategory(cat) {
+      selectedVideoCat = cat;
+      renderVideoSection();
+    }
+
+    function normalizeYouTubeEmbed(url) {
+      if (!url) return '';
+      try {
+        if (url.includes('youtube.com/embed/')) return url;
+        const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        const match = url.match(regExp);
+        return match && match[1] ? `https://www.youtube.com/embed/${match[1]}` : url;
+      } catch (e) {
+        return url;
+      }
+    }
+
+    function renderVideoSection() {
+      document.querySelectorAll('.vidcat-btn').forEach(btn => {
+        const isActive = btn.getAttribute('data-vidcat') === selectedVideoCat;
+        btn.className = isActive
+          ? 'vidcat-btn px-5 py-3 rounded-2xl font-display font-bold text-sm sm:text-base transition-all bg-teal-600 text-white shadow-md'
+          : 'vidcat-btn px-5 py-3 rounded-2xl font-display font-bold text-sm sm:text-base transition-all bg-slate-100 hover:bg-slate-200 text-slate-700';
+      });
+
+      const vid = appState.videos[selectedVideoCat];
+      const container = document.getElementById('video-player-container');
+
+      let playerHTML = '';
+      if (vid.type === 'local' && vid.customVideoDataUrl) {
+        playerHTML = `
+          <div class="aspect-video w-full rounded-3xl overflow-hidden bg-slate-900 shadow-lg border-4 border-slate-200">
+            <video controls class="w-full h-full object-contain" src="${vid.customVideoDataUrl}"></video>
+          </div>
+        `;
+      } else if (vid.url) {
+        const embedUrl = normalizeYouTubeEmbed(vid.url);
+        playerHTML = `
+          <div class="aspect-video w-full rounded-3xl overflow-hidden bg-slate-900 shadow-lg border-4 border-slate-200">
+            <iframe class="w-full h-full" src="${embedUrl}" title="${vid.title}" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        `;
+      } else {
+        playerHTML = `
+          <div class="aspect-video w-full rounded-3xl bg-gradient-to-br from-slate-100 to-sky-50 border-4 border-dashed border-slate-300 flex flex-col items-center justify-center p-6 text-center space-y-3">
+            <div class="text-5xl">🎬</div>
+            <h4 class="font-display text-xl font-bold text-slate-700">Video Belum Ditambahkan untuk Kelompok Ini</h4>
+            <p class="text-slate-500 text-sm max-w-md">${vid.note}</p>
+            <button onclick="switchTab('guru')" class="px-5 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-sm">
+              + Tambah Video di Ruang Guru
+            </button>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+          <h3 class="font-display text-xl font-bold text-slate-800">${vid.title}</h3>
+          <p class="text-slate-600 text-sm mt-1">${vid.description}</p>
+        </div>
+        ${playerHTML}
+      `;
+    }
+
+    /**
+     * 8. KUIS INTERAKTIF & EVALUASI PEMAHAMAN SISWA
+     */
+    function renderQuizStartScreen() {
+      const container = document.getElementById('quiz-container');
+      const totalQ = appState.quizQuestions.length;
+
+      container.innerHTML = `
+        <div class="text-center max-w-xl mx-auto space-y-6 py-4">
+          <div class="w-20 h-20 rounded-3xl bg-amber-100 text-amber-500 flex items-center justify-center text-5xl mx-auto shadow-sm">
+            🏆
+          </div>
+          <div>
+            <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-display font-bold text-xs">Tantangan Tajwid SD</span>
+            <h2 class="font-display text-3xl font-bold text-slate-800 mt-2">Kuis Makharijul Huruf</h2>
+            <p class="text-slate-600 mt-2">Uji pemahamanmu tentang tempat keluarnya huruf hijaiyah (${totalQ} soal). Kumpulkan bintang dan raih lencana Juara Tajwid!</p>
+          </div>
+
+          <form onsubmit="startQuiz(event)" class="space-y-4 text-left bg-slate-50 p-6 rounded-3xl border border-slate-200">
+            <div>
+              <label for="quiz-student-name" class="block font-display font-bold text-slate-700 mb-1.5">Nama Lengkap Siswa:</label>
+              <input id="quiz-student-name" type="text" required placeholder="Contoh: Ahmad Fauzan (Kelas 5A)"
+                class="w-full px-4 py-3 rounded-2xl border-2 border-slate-300 focus:border-teal-500 focus:outline-none font-semibold" />
+            </div>
+            <button type="submit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-display font-bold text-lg shadow-md transition-all">
+              🚀 Mulai Mengerjakan Kuis
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    function startQuiz(e) {
+      e.preventDefault();
+      if (appState.quizQuestions.length === 0) {
+        showToast('Belum ada soal kuis. Minta guru menambahkan soal di Ruang Guru.', 'warning');
+        return;
+      }
+      const nameInput = document.getElementById('quiz-student-name').value.trim();
+      quizRuntime = {
+        active: true,
+        studentName: nameInput || 'Siswa Hebat',
+        currentIndex: 0,
+        score: 0,
+        correctCount: 0,
+        answered: false,
+        selectedOption: null
+      };
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+      const container = document.getElementById('quiz-container');
+      const questions = appState.quizQuestions;
+      const q = questions[quizRuntime.currentIndex];
+      const progressPct = Math.round(((quizRuntime.currentIndex + 1) / questions.length) * 100);
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <!-- Header Soal -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-200">
+            <div class="font-display font-bold text-slate-700">
+              👤 ${quizRuntime.studentName}
+            </div>
+            <div class="px-3.5 py-1 rounded-full bg-teal-100 text-teal-800 font-display font-bold text-sm">
+              Soal ${quizRuntime.currentIndex + 1} dari ${questions.length}
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-amber-400 transition-all duration-300" style="width: ${progressPct}%"></div>
+          </div>
+
+          <!-- Pertanyaan & Kartu Arab -->
+          <div class="space-y-4">
+            <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-800 leading-snug">
+              ${q.question}
+            </h3>
+
+            ${q.arabicCue ? `
+              <div class="flex items-center justify-between bg-sky-50 border-2 border-sky-200 rounded-2xl p-4">
+                <div class="arabic-text text-4xl sm:text-5xl font-bold text-sky-900">${q.arabicCue}</div>
+                <button onclick="playArabicAudio('${q.arabicCue}')" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-display font-bold text-sm flex items-center gap-1.5">
+                  <span>🔊</span> Dengarkan
+                </button>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Pilihan Jawaban -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${q.options.map((opt, idx) => {
+              let btnStyle = 'bg-slate-50 hover:bg-teal-50 border-slate-200 hover:border-teal-400 text-slate-800';
+              let icon = ['A', 'B', 'C', 'D'][idx] || (idx + 1);
+
+              if (quizRuntime.answered) {
+                if (idx === q.correctIndex) {
+                  btnStyle = 'bg-emerald-100 border-emerald-500 text-emerald-900 font-bold';
+                  icon = '✅';
+                } else if (idx === quizRuntime.selectedOption) {
+                  btnStyle = 'bg-rose-100 border-rose-500 text-rose-900';
+                  icon = '❌';
+                } else {
+                  btnStyle = 'bg-slate-50 border-slate-200 opacity-60';
+                }
+              }
+
+              return `
+                <button ${quizRuntime.answered ? 'disabled' : ''} onclick="submitQuizAnswer(${idx})"
+                  class="p-4 rounded-2xl border-2 text-left transition-all flex items-center gap-3 ${btnStyle}">
+                  <span class="w-8 h-8 rounded-xl bg-white border border-slate-300 font-display font-bold text-sm flex items-center justify-center shrink-0">
+                    ${icon}
+                  </span>
+                  <span class="font-semibold text-sm sm:text-base">${opt}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Feedback Jawaban -->
+          ${quizRuntime.answered ? `
+            <div class="p-4 rounded-2xl ${quizRuntime.selectedOption === q.correctIndex ? 'bg-emerald-50 border border-emerald-200 text-emerald-900' : 'bg-amber-50 border border-amber-200 text-amber-900'} space-y-3">
+              <div class="font-display font-bold text-base">
+                ${quizRuntime.selectedOption === q.correctIndex ? '🎉 Hebat! Jawabanmu Benar!' : '💡 Hampir Tepat! Yuk perhatikan penjelasannya:'}
+              </div>
+              <p class="text-sm">${q.explanation}</p>
+              <div class="pt-1 flex justify-end">
+                <button onclick="nextQuizQuestion()" class="px-6 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-sm">
+                  ${quizRuntime.currentIndex + 1 < questions.length ? 'Soal Berikutnya →' : 'Lihat Hasil & Bintang 🏆'}
+                </button>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function submitQuizAnswer(selectedIdx) {
+      if (quizRuntime.answered) return;
+      const q = appState.quizQuestions[quizRuntime.currentIndex];
+      quizRuntime.answered = true;
+      quizRuntime.selectedOption = selectedIdx;
+
+      if (selectedIdx === q.correctIndex) {
+        quizRuntime.correctCount += 1;
+      }
+      renderQuizQuestion();
+    }
+
+    function nextQuizQuestion() {
+      if (quizRuntime.currentIndex + 1 < appState.quizQuestions.length) {
+        quizRuntime.currentIndex += 1;
+        quizRuntime.answered = false;
+        quizRuntime.selectedOption = null;
+        renderQuizQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      const total = appState.quizQuestions.length;
+      const finalScore = Math.round((quizRuntime.correctCount / total) * 100);
+      const earnedStars = finalScore >= 90 ? 5 : finalScore >= 75 ? 4 : finalScore >= 60 ? 3 : 2;
+
+      appState.studentProgress.stars += earnedStars;
+      appState.studentResults.unshift({
+        name: quizRuntime.studentName,
+        score: finalScore,
+        correct: quizRuntime.correctCount,
+        total: total,
+        stars: earnedStars,
+        date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })
+      });
+      saveState();
+
+      quizRuntime.active = false;
+      const container = document.getElementById('quiz-container');
+      const starsVisual = '⭐'.repeat(earnedStars);
+
+      container.innerHTML = `
+        <div class="text-center max-w-lg mx-auto space-y-6 py-4">
+          <div class="text-6xl animate-bounce">🏆</div>
+          <div>
+            <span class="px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-display font-bold text-xs">Evaluasi Selesai!</span>
+            <h2 class="font-display text-3xl font-bold text-slate-800 mt-2">Alhamdulillah, ${quizRuntime.studentName}!</h2>
+            <p class="text-slate-600 mt-1">Kamu berhasil menjawab <strong>${quizRuntime.correctCount}</strong> dari <strong>${total}</strong> soal dengan benar.</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-amber-50 to-teal-50 rounded-3xl p-6 border-2 border-amber-300 space-y-2">
+            <div class="text-sm font-bold text-slate-500 uppercase">Nilai Akhir Kamu</div>
+            <div class="font-display text-6xl font-bold text-teal-600">${finalScore}</div>
+            <div class="text-2xl pt-1">${starsVisual}</div>
+            <div class="text-xs font-bold text-amber-700">+${earnedStars} Bintang Prestasi Ditambahkan!</div>
+          </div>
+
+          <div class="flex flex-wrap justify-center gap-3">
+            <button onclick="renderQuizStartScreen()" class="px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold">
+              🔄 Coba Kuis Lagi
+            </button>
+            <button onclick="switchTab('beranda')" class="px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-display font-bold">
+              🏠 Kembali ke Beranda
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * 9. RUANG GURU (CMS MINI DI BROWSER)
+     */
+    function unlockTeacherMode(e) {
+      e.preventDefault();
+      const pin = document.getElementById('teacher-pin-input').value.trim();
+      if (pin === '1234') {
+        isTeacherUnlocked = true;
+        document.getElementById('teacher-lock-screen').classList.add('hidden');
+        document.getElementById('teacher-dashboard').classList.remove('hidden');
+        renderTeacherSubContent();
+        showToast('Selamat datang di Ruang Guru!', 'success');
+      } else {
+        showToast('PIN salah! Gunakan PIN default: 1234', 'error');
+      }
+    }
+
+    function lockTeacherMode() {
+      isTeacherUnlocked = false;
+      document.getElementById('teacher-pin-input').value = '';
+      document.getElementById('teacher-dashboard').classList.add('hidden');
+      document.getElementById('teacher-lock-screen').classList.remove('hidden');
+    }
+
+    function switchTeacherSubTab(sub) {
+      currentTeacherSubTab = sub;
+      renderTeacherSubContent();
+    }
+
+    function renderTeacherSubContent() {
+      document.querySelectorAll('.tsub-btn').forEach(btn => {
+        const isActive = btn.getAttribute('data-tsub') === currentTeacherSubTab;
+        btn.className = isActive
+          ? 'tsub-btn px-4 py-2.5 rounded-xl font-display font-bold text-sm transition-all bg-teal-600 text-white shadow-sm'
+          : 'tsub-btn px-4 py-2.5 rounded-xl font-display font-bold text-sm transition-all text-slate-600 hover:bg-slate-100';
+      });
+
+      const box = document.getElementById('teacher-subcontent');
+
+      // SUB-TAB A: EDIT MATERI & GAMBAR ILUSTRASI
+      if (currentTeacherSubTab === 'materi-cms') {
+        box.innerHTML = `
+          <div class="space-y-4">
+            <h3 class="font-display text-xl font-bold text-slate-800">Edit Penjelasan & Gambar Ilustrasi Titik Makhraj</h3>
+            <p class="text-sm text-slate-600">Perubahan teks dan gambar ilustrasi di bawah ini langsung tampil pada pop-up Peta Anatomi Interaktif.</p>
+            <div class="space-y-4">
+              ${appState.makhrajPoints.map((pt, idx) => `
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="font-display font-bold text-teal-800">${idx + 1}. ${pt.name} (${pt.letters.join(' ')})</span>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-white border border-slate-200">${pt.categoryName}</span>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-bold text-slate-600 mb-1">Penjelasan Posisi Organ Pengucapan:</label>
+                      <textarea id="cms-exp-${pt.id}" rows="3" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm">${pt.explanation}</textarea>
+                    </div>
+                    <div class="space-y-2">
+                      <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Contoh Pelafalan (Arab):</label>
+                        <input id="cms-ex-${pt.id}" type="text" value="${pt.exampleWord}" class="w-full p-2 rounded-xl border border-slate-300 arabic-text text-xl" />
+                      </div>
+                      <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">URL Gambar Ilustrasi Tambahan (Opsional):</label>
+                        <input id="cms-img-${pt.id}" type="url" value="${pt.customImage || ''}" placeholder="https://..." class="w-full p-2 rounded-xl border border-slate-300 text-xs" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex justify-end">
+                    <button onclick="saveMakhrajPointEdit('${pt.id}')" class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs">
+                      💾 Simpan Perubahan Titik Ini
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // SUB-TAB B: KELOLA VIDEO PEMBELAJARAN
+      else if (currentTeacherSubTab === 'video-cms') {
+        const cats = [
+          { key: 'al-halq', label: '1. Kelompok Al-Halq (Tenggorokan)' },
+          { key: 'al-lisan', label: '2. Kelompok Al-Lisan (Lidah)' },
+          { key: 'asy-syafatain', label: '3. Kelompok Asy-Syafatain (Dua Bibir)' }
+        ];
+        box.innerHTML = `
+          <div class="space-y-5">
+            <h3 class="font-display text-xl font-bold text-slate-800">Kelola Video Pembelajaran per Kelompok Makhraj</h3>
+            <p class="text-sm text-slate-600">Guru dapat memasukkan tautan YouTube atau mengunggah file video MP4/WebM langsung dari perangkat.</p>
+            ${cats.map(c => {
+              const v = appState.videos[c.key];
+              return `
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                  <h4 class="font-display font-bold text-lg text-teal-800">${c.label}</h4>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-bold text-slate-600 mb-1">Judul Video:</label>
+                      <input id="vid-title-${c.key}" type="text" value="${v.title}" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm font-semibold" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-600 mb-1">Tautan Video YouTube (URL):</label>
+                      <input id="vid-url-${c.key}" type="url" value="${v.url || ''}" placeholder="https://www.youtube.com/watch?v=..." class="w-full p-2.5 rounded-xl border border-slate-300 text-sm" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Deskripsi Singkat:</label>
+                    <input id="vid-desc-${c.key}" type="text" value="${v.description}" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm" />
+                  </div>
+                  <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                    <label class="px-4 py-2 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-800 font-bold text-xs cursor-pointer">
+                      📁 Atau Unggah File Video Lokal (Maks ~4MB)
+                      <input type="file" accept="video/*" onchange="handleLocalVideoUpload(event, '${c.key}')" class="hidden" />
+                    </label>
+                    <button onclick="saveVideoMeta('${c.key}')" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs">
+                      💾 Simpan Video ${c.label.split(' ')[2]}
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      // SUB-TAB C: REKAM / UNGGAH AUDIO HURUF
+      else if (currentTeacherSubTab === 'audio-cms') {
+        box.innerHTML = `
+          <div class="space-y-5">
+            <div>
+              <h3 class="font-display text-xl font-bold text-slate-800">Rekam Suara Guru atau Unggah Audio Pelafalan Huruf</h3>
+              <p class="text-sm text-slate-600">Pilih huruf hijaiyah, lalu rekam suara Anda langsung menggunakan mikrofon atau unggah file MP3/WAV. Siswa akan mendengar suara asli Anda saat menekan huruf tersebut!</p>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Huruf Hijaiyah:</label>
+                  <select id="cms-audio-letter" class="w-full p-3 rounded-xl border border-slate-300 font-bold text-base bg-white">
+                    ${LETTERS_DATA.map(l => `<option value="${l.char}">${l.char} — Huruf ${l.name} ${appState.customAudioMap[l.char] ? '(Sudah ada rekaman)' : ''}</option>`).join('')}
+                  </select>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                  <button id="btn-record-toggle" onclick="toggleAudioRecording()" class="px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-display font-bold text-sm flex items-center gap-2">
+                    <span>🎙️</span> Mulai Rekam Mikrofon
+                  </button>
+                  <label class="px-4 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-display font-bold text-sm cursor-pointer flex items-center gap-2">
+                    <span>📂</span> Unggah File Audio
+                    <input type="file" accept="audio/*" onchange="handleAudioFileUpload(event)" class="hidden" />
+                  </label>
+                </div>
+              </div>
+              <p id="recording-status" class="text-xs font-bold text-slate-600">Status: Siap merekam atau mengunggah audio.</p>
+            </div>
+
+            <!-- Daftar Rekaman Guru yang Tersimpan -->
+            <div>
+              <h4 class="font-display font-bold text-slate-800 mb-2">Daftar Audio Khusus Guru yang Tersimpan:</h4>
+              <div id="saved-custom-audios" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                ${renderSavedCustomAudioList()}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // SUB-TAB D: KELOLA SOAL KUIS
+      else if (currentTeacherSubTab === 'kuis-cms') {
+        box.innerHTML = `
+          <div class="space-y-6">
+            <div>
+              <h3 class="font-display text-xl font-bold text-slate-800">Kelola Bank Soal Kuis Siswa</h3>
+              <p class="text-sm text-slate-600">Tambahkan soal baru atau hapus soal yang ada. Perubahan langsung berlaku di menu Kuis & Bintang.</p>
+            </div>
+
+            <!-- Form Tambah Soal -->
+            <form onsubmit="addNewQuizQuestion(event)" class="p-5 rounded-2xl bg-teal-50/70 border border-teal-200 space-y-3">
+              <h4 class="font-display font-bold text-teal-800">+ Tambah Soal Kuis Baru</h4>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Pertanyaan:</label>
+                  <input id="new-q-text" type="text" required placeholder="Contoh: Huruf ق keluar dari bagian lidah sebelah mana?" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Teks Arab Pendukung (Opsional):</label>
+                  <input id="new-q-arabic" type="text" placeholder="قَ - قِ - قُ" class="w-full p-2.5 rounded-xl border border-slate-300 arabic-text text-xl" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                <input id="new-q-opt0" type="text" required placeholder="Pilihan A" class="p-2.5 rounded-xl border border-slate-300 text-sm" />
+                <input id="new-q-opt1" type="text" required placeholder="Pilihan B" class="p-2.5 rounded-xl border border-slate-300 text-sm" />
+                <input id="new-q-opt2" type="text" required placeholder="Pilihan C" class="p-2.5 rounded-xl border border-slate-300 text-sm" />
+                <input id="new-q-opt3" type="text" required placeholder="Pilihan D" class="p-2.5 rounded-xl border border-slate-300 text-sm" />
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Kunci Jawaban Benar:</label>
+                  <select id="new-q-correct" class="w-full p-2.5 rounded-xl border border-slate-300 text-sm font-bold bg-white">
+                    <option value="0">Pilihan A</option>
+                    <option value="1">Pilihan B</option>
+                    <option value="2">Pilihan C</option>
+                    <option value="3">Pilihan D</option>
+                  </select>
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Pembahasan Singkat untuk Siswa:</label>
+                  <input id="new-q-exp" type="text" required placeholder="Contoh: Huruf Qaf keluar dari pangkal lidah." class="w-full p-2.5 rounded-xl border border-slate-300 text-sm" />
+                </div>
+              </div>
+
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-display font-bold text-sm">
+                ➕ Simpan Soal ke Kuis
+              </button>
+            </form>
+
+            <!-- Daftar Soal Aktif -->
+            <div class="space-y-2.5">
+              <h4 class="font-display font-bold text-slate-800">Daftar Soal Aktif (${appState.quizQuestions.length} Soal):</h4>
+              ${appState.quizQuestions.map((q, idx) => `
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-start justify-between gap-4">
+                  <div>
+                    <div class="font-bold text-sm text-slate-800">${idx + 1}. ${q.question}</div>
+                    <div class="text-xs text-emerald-700 font-semibold mt-1">Kunci: ${q.options[q.correctIndex]}</div>
+                  </div>
+                  <button onclick="deleteQuizQuestion('${q.id}')" class="px-3 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs shrink-0">
+                    🗑️ Hapus
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // SUB-TAB E: REKAP NILAI & EVALUASI SISWA
+      else if (currentTeacherSubTab === 'nilai-cms') {
+        box.innerHTML = `
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h3 class="font-display text-xl font-bold text-slate-800">Rekap Hasil Evaluasi & Nilai Kuis Siswa</h3>
+                <p class="text-sm text-slate-600">Pantau perkembangan nilai dan perolehan bintang siswa setelah mengerjakan kuis.</p>
+              </div>
+              ${appState.studentResults.length > 0 ? `
+                <button onclick="clearStudentResults()" class="px-4 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs">
+                  🗑️ Kosongkan Riwayat Nilai
+                </button>
+              ` : ''}
+            </div>
+
+            ${appState.studentResults.length === 0 ? `
+              <div class="p-8 rounded-2xl bg-slate-50 border border-dashed border-slate-300 text-center text-slate-500 text-sm">
+                Belum ada siswa yang menyelesaikan kuis. Ajak siswa mengerjakan soal pada tab <strong>Kuis & Bintang</strong>!
+              </div>
+            ` : `
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr class="bg-slate-100 text-slate-700 font-display">
+                      <th class="p-3 rounded-tl-xl">Nama Siswa</th>
+                      <th class="p-3">Benar</th>
+                      <th class="p-3">Nilai</th>
+                      <th class="p-3">Bintang</th>
+                      <th class="p-3 rounded-tr-xl">Waktu</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200">
+                    ${appState.studentResults.map(r => `
+                      <tr class="hover:bg-slate-50">
+                        <td class="p-3 font-bold text-slate-800">${r.name}</td>
+                        <td class="p-3">${r.correct} / ${r.total}</td>
+                        <td class="p-3 font-display font-bold text-teal-600 text-base">${r.score}</td>
+                        <td class="p-3">${'⭐'.repeat(r.stars)}</td>
+                        <td class="p-3 text-xs text-slate-500">${r.date}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+        `;
+      }
+    }
+
+    // Aksi-aksi CMS Guru
+    function saveMakhrajPointEdit(pointId) {
+      const pt = appState.makhrajPoints.find(p => p.id === pointId);
+      if (!pt) return;
+      pt.explanation = document.getElementById(`cms-exp-${pointId}`).value.trim();
+      pt.exampleWord = document.getElementById(`cms-ex-${pointId}`).value.trim();
+      pt.customImage = document.getElementById(`cms-img-${pointId}`).value.trim();
+      saveState();
+      showToast(`Materi "${pt.name}" berhasil diperbarui!`, 'success');
+    }
+
+    function saveVideoMeta(catKey) {
+      const v = appState.videos[catKey];
+      v.title = document.getElementById(`vid-title-${catKey}`).value.trim();
+      v.url = document.getElementById(`vid-url-${catKey}`).value.trim();
+      v.description = document.getElementById(`vid-desc-${catKey}`).value.trim();
+      if (v.url) {
+        v.type = 'youtube';
+      }
+      saveState();
+      showToast('Pengaturan video berhasil disimpan!', 'success');
+    }
+
+    function handleLocalVideoUpload(event, catKey) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 4.5 * 1024 * 1024) {
+        showToast('Ukuran video terlalu besar untuk penyimpanan browser (maks 4.5 MB). Gunakan tautan YouTube untuk video panjang.', 'warning');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        appState.videos[catKey].type = 'local';
+        appState.videos[catKey].customVideoDataUrl = e.target.result;
+        saveState();
+        showToast('Video lokal berhasil diunggah!', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Perekam Mikrofon Guru
+    async function toggleAudioRecording() {
+      const btn = document.getElementById('btn-record-toggle');
+      const status = document.getElementById('recording-status');
+      const targetChar = document.getElementById('cms-audio-letter').value;
+
+      if (!isRecordingAudio) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          recordedChunks = [];
+          mediaRecorder = new MediaRecorder(stream);
+
+          mediaRecorder.ondataavailable = e => {
+            if (e.data.size > 0) recordedChunks.push(e.data);
+          };
+
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              appState.customAudioMap[targetChar] = reader.result;
+              saveState();
+              renderTeacherSubContent();
+              showToast(`Rekaman suara untuk huruf ${targetChar} berhasil disimpan!`, 'success');
+            };
+            reader.readAsDataURL(blob);
+            stream.getTracks().forEach(track => track.stop());
+          };
+
+          mediaRecorder.start();
+          isRecordingAudio = true;
+          btn.innerHTML = '<span>⏹️</span> Hentikan & Simpan Rekaman';
+          btn.classList.replace('bg-rose-600', 'bg-slate-800');
+          status.textContent = `🔴 Sedang merekam pelafalan huruf ${targetChar}... Ucapkan dengan jelas lalu klik Hentikan.`;
+        } catch (err) {
+          showToast('Tidak dapat mengakses mikrofon. Pastikan izin mikrofon aktif di browser.', 'error');
+        }
+      } else {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
+        isRecordingAudio = false;
+      }
+    }
+
+    function handleAudioFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const targetChar = document.getElementById('cms-audio-letter').value;
+      const reader = new FileReader();
+      reader.onload = e => {
+        appState.customAudioMap[targetChar] = e.target.result;
+        saveState();
+        renderTeacherSubContent();
+        showToast(`File audio untuk huruf ${targetChar} berhasil diunggah!`, 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderSavedCustomAudioList() {
+      const keys = Object.keys(appState.customAudioMap);
+      if (keys.length === 0) {
+        return `<p class="text-xs text-slate-500 col-span-full">Belum ada rekaman/unggahan audio khusus guru.</p>`;
+      }
+      return keys.map(ch => `
+        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="arabic-text text-3xl font-bold text-teal-700">${ch}</span>
+            <button onclick="playArabicAudio('${ch}', '${ch}', true)" class="px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800 font-bold text-xs">
+              ▶️ Putar
+            </button>
+          </div>
+          <button onclick="deleteCustomAudio('${ch}')" class="text-xs font-bold text-rose-600 hover:underline">Hapus</button>
+        </div>
+      `).join('');
+    }
+
+    function deleteCustomAudio(ch) {
+      delete appState.customAudioMap[ch];
+      saveState();
+      renderTeacherSubContent();
+      showToast(`Audio khusus huruf ${ch} dihapus.`, 'info');
+    }
+
+    function addNewQuizQuestion(e) {
+      e.preventDefault();
+      const newQ = {
+        id: 'q_' + Date.now(),
+        question: document.getElementById('new-q-text').value.trim(),
+        arabicCue: document.getElementById('new-q-arabic').value.trim(),
+        options: [
+          document.getElementById('new-q-opt0').value.trim(),
+          document.getElementById('new-q-opt1').value.trim(),
+          document.getElementById('new-q-opt2').value.trim(),
+          document.getElementById('new-q-opt3').value.trim()
+        ],
+        correctIndex: parseInt(document.getElementById('new-q-correct').value, 10),
+        explanation: document.getElementById('new-q-exp').value.trim()
+      };
+      appState.quizQuestions.push(newQ);
+      saveState();
+      renderTeacherSubContent();
+      showToast('Soal baru berhasil ditambahkan ke kuis!', 'success');
+    }
+
+    function deleteQuizQuestion(id) {
+      appState.quizQuestions = appState.quizQuestions.filter(q => q.id !== id);
+      saveState();
+      renderTeacherSubContent();
+      showToast('Soal dihapus.', 'info');
+    }
+
+    function clearStudentResults() {
+      appState.studentResults = [];
+      saveState();
+      renderTeacherSubContent();
+      showToast('Riwayat nilai siswa dikosongkan.', 'info');
+    }
+
+    // Ekspor / Impor / Reset Data CMS
+    function exportCMSData() {
+      const dataStr = JSON.stringify(appState, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `materi-makharijul-huruf-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('File cadangan materi (JSON) berhasil diunduh!', 'success');
+    }
+
+    function importCMSData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.makhrajPoints && imported.quizQuestions) {
+            appState = imported;
+            saveState();
+            renderTeacherSubContent();
+            showToast('Data materi & kuis berhasil diimpor!', 'success');
+          } else {
+            showToast('Format file JSON tidak sesuai.', 'error');
+          }
+        } catch (err) {
+          showToast('Gagal membaca file JSON.', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function requestResetCMS() {
+      const modal = document.getElementById('confirm-modal');
+      document.getElementById('confirm-modal-title').textContent = 'Reset Semua Konten ke Awal?';
+      document.getElementById('confirm-modal-text').textContent = 'Semua editan materi, video, rekaman audio guru, dan soal kuis tambahan akan dikembalikan ke pengaturan awal.';
+      document.getElementById('confirm-modal-yes').onclick = () => {
+        localStorage.removeItem(STORAGE_KEY);
+        appState = {
+          makhrajPoints: JSON.parse(JSON.stringify(DEFAULT_MAKHRAJ_POINTS)),
+          videos: JSON.parse(JSON.stringify(DEFAULT_VIDEOS)),
+          customAudioMap: {},
+          quizQuestions: JSON.parse(JSON.stringify(DEFAULT_QUIZ_QUESTIONS)),
+          studentResults: [],
+          studentProgress: { stars: 0, learnedLetters: [] }
+        };
+        saveState();
+        closeConfirmModal();
+        renderTeacherSubContent();
+        showToast('Seluruh data dikembalikan ke pengaturan awal.', 'info');
+      };
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeConfirmModal() {
+      const modal = document.getElementById('confirm-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    /**
+     * 10. INISIALISASI SAAT HALAMAN DIMUAT
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      updateHeaderAndHomeStats();
+      switchTab('beranda');
+
+      // Memuat daftar suara Web Speech API lebih awal
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+      }
+    });
+  </script>
+</body>
+</html>
